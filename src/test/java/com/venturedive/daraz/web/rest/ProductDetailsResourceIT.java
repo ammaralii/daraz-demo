@@ -10,8 +10,6 @@ import com.venturedive.daraz.domain.ProductDetails;
 import com.venturedive.daraz.domain.Products;
 import com.venturedive.daraz.repository.ProductDetailsRepository;
 import com.venturedive.daraz.service.criteria.ProductDetailsCriteria;
-import com.venturedive.daraz.service.dto.ProductDetailsDTO;
-import com.venturedive.daraz.service.mapper.ProductDetailsMapper;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -50,9 +48,6 @@ class ProductDetailsResourceIT {
 
     @Autowired
     private ProductDetailsRepository productDetailsRepository;
-
-    @Autowired
-    private ProductDetailsMapper productDetailsMapper;
 
     @Autowired
     private EntityManager em;
@@ -120,10 +115,9 @@ class ProductDetailsResourceIT {
     void createProductDetails() throws Exception {
         int databaseSizeBeforeCreate = productDetailsRepository.findAll().size();
         // Create the ProductDetails
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
         restProductDetailsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetails))
             )
             .andExpect(status().isCreated());
 
@@ -141,14 +135,13 @@ class ProductDetailsResourceIT {
     void createProductDetailsWithExistingId() throws Exception {
         // Create the ProductDetails with an existing ID
         productDetails.setId(1L);
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
 
         int databaseSizeBeforeCreate = productDetailsRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restProductDetailsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -165,11 +158,10 @@ class ProductDetailsResourceIT {
         productDetails.setDescription(null);
 
         // Create the ProductDetails, which fails.
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
 
         restProductDetailsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -185,11 +177,10 @@ class ProductDetailsResourceIT {
         productDetails.setImageUrl(null);
 
         // Create the ProductDetails, which fails.
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
 
         restProductDetailsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -205,11 +196,10 @@ class ProductDetailsResourceIT {
         productDetails.setIsavailable(null);
 
         // Create the ProductDetails, which fails.
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
 
         restProductDetailsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -521,13 +511,12 @@ class ProductDetailsResourceIT {
         // Disconnect from session so that the updates on updatedProductDetails are not directly saved in db
         em.detach(updatedProductDetails);
         updatedProductDetails.description(UPDATED_DESCRIPTION).imageUrl(UPDATED_IMAGE_URL).isavailable(UPDATED_ISAVAILABLE);
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(updatedProductDetails);
 
         restProductDetailsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, productDetailsDTO.getId())
+                put(ENTITY_API_URL_ID, updatedProductDetails.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(updatedProductDetails))
             )
             .andExpect(status().isOk());
 
@@ -546,15 +535,12 @@ class ProductDetailsResourceIT {
         int databaseSizeBeforeUpdate = productDetailsRepository.findAll().size();
         productDetails.setId(count.incrementAndGet());
 
-        // Create the ProductDetails
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restProductDetailsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, productDetailsDTO.getId())
+                put(ENTITY_API_URL_ID, productDetails.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(productDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -569,15 +555,12 @@ class ProductDetailsResourceIT {
         int databaseSizeBeforeUpdate = productDetailsRepository.findAll().size();
         productDetails.setId(count.incrementAndGet());
 
-        // Create the ProductDetails
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restProductDetailsMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(productDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -592,14 +575,9 @@ class ProductDetailsResourceIT {
         int databaseSizeBeforeUpdate = productDetailsRepository.findAll().size();
         productDetails.setId(count.incrementAndGet());
 
-        // Create the ProductDetails
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restProductDetailsMockMvc
-            .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
-            )
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productDetails)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the ProductDetails in the database
@@ -675,15 +653,12 @@ class ProductDetailsResourceIT {
         int databaseSizeBeforeUpdate = productDetailsRepository.findAll().size();
         productDetails.setId(count.incrementAndGet());
 
-        // Create the ProductDetails
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restProductDetailsMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, productDetailsDTO.getId())
+                patch(ENTITY_API_URL_ID, productDetails.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(productDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -698,15 +673,12 @@ class ProductDetailsResourceIT {
         int databaseSizeBeforeUpdate = productDetailsRepository.findAll().size();
         productDetails.setId(count.incrementAndGet());
 
-        // Create the ProductDetails
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restProductDetailsMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(productDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -721,15 +693,10 @@ class ProductDetailsResourceIT {
         int databaseSizeBeforeUpdate = productDetailsRepository.findAll().size();
         productDetails.setId(count.incrementAndGet());
 
-        // Create the ProductDetails
-        ProductDetailsDTO productDetailsDTO = productDetailsMapper.toDto(productDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restProductDetailsMockMvc
             .perform(
-                patch(ENTITY_API_URL)
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(productDetailsDTO))
+                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(productDetails))
             )
             .andExpect(status().isMethodNotAllowed());
 

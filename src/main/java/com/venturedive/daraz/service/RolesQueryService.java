@@ -4,8 +4,6 @@ import com.venturedive.daraz.domain.*; // for static metamodels
 import com.venturedive.daraz.domain.Roles;
 import com.venturedive.daraz.repository.RolesRepository;
 import com.venturedive.daraz.service.criteria.RolesCriteria;
-import com.venturedive.daraz.service.dto.RolesDTO;
-import com.venturedive.daraz.service.mapper.RolesMapper;
 import java.util.List;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
@@ -21,7 +19,7 @@ import tech.jhipster.service.QueryService;
  * Service for executing complex queries for {@link Roles} entities in the database.
  * The main input is a {@link RolesCriteria} which gets converted to {@link Specification},
  * in a way that all the filters must apply.
- * It returns a {@link List} of {@link RolesDTO} or a {@link Page} of {@link RolesDTO} which fulfills the criteria.
+ * It returns a {@link List} of {@link Roles} or a {@link Page} of {@link Roles} which fulfills the criteria.
  */
 @Service
 @Transactional(readOnly = true)
@@ -31,36 +29,33 @@ public class RolesQueryService extends QueryService<Roles> {
 
     private final RolesRepository rolesRepository;
 
-    private final RolesMapper rolesMapper;
-
-    public RolesQueryService(RolesRepository rolesRepository, RolesMapper rolesMapper) {
+    public RolesQueryService(RolesRepository rolesRepository) {
         this.rolesRepository = rolesRepository;
-        this.rolesMapper = rolesMapper;
     }
 
     /**
-     * Return a {@link List} of {@link RolesDTO} which matches the criteria from the database.
+     * Return a {@link List} of {@link Roles} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public List<RolesDTO> findByCriteria(RolesCriteria criteria) {
+    public List<Roles> findByCriteria(RolesCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
         final Specification<Roles> specification = createSpecification(criteria);
-        return rolesMapper.toDto(rolesRepository.findAll(specification));
+        return rolesRepository.findAll(specification);
     }
 
     /**
-     * Return a {@link Page} of {@link RolesDTO} which matches the criteria from the database.
+     * Return a {@link Page} of {@link Roles} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @param page The page, which should be returned.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public Page<RolesDTO> findByCriteria(RolesCriteria criteria, Pageable page) {
+    public Page<Roles> findByCriteria(RolesCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<Roles> specification = createSpecification(criteria);
-        return rolesRepository.findAll(specification, page).map(rolesMapper::toDto);
+        return rolesRepository.findAll(specification, page);
     }
 
     /**

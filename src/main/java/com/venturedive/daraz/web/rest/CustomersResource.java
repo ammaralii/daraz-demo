@@ -1,10 +1,10 @@
 package com.venturedive.daraz.web.rest;
 
+import com.venturedive.daraz.domain.Customers;
 import com.venturedive.daraz.repository.CustomersRepository;
 import com.venturedive.daraz.service.CustomersQueryService;
 import com.venturedive.daraz.service.CustomersService;
 import com.venturedive.daraz.service.criteria.CustomersCriteria;
-import com.venturedive.daraz.service.dto.CustomersDTO;
 import com.venturedive.daraz.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,17 +59,17 @@ public class CustomersResource {
     /**
      * {@code POST  /customers} : Create a new customers.
      *
-     * @param customersDTO the customersDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new customersDTO, or with status {@code 400 (Bad Request)} if the customers has already an ID.
+     * @param customers the customers to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new customers, or with status {@code 400 (Bad Request)} if the customers has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/customers")
-    public ResponseEntity<CustomersDTO> createCustomers(@Valid @RequestBody CustomersDTO customersDTO) throws URISyntaxException {
-        log.debug("REST request to save Customers : {}", customersDTO);
-        if (customersDTO.getId() != null) {
+    public ResponseEntity<Customers> createCustomers(@Valid @RequestBody Customers customers) throws URISyntaxException {
+        log.debug("REST request to save Customers : {}", customers);
+        if (customers.getId() != null) {
             throw new BadRequestAlertException("A new customers cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        CustomersDTO result = customersService.save(customersDTO);
+        Customers result = customersService.save(customers);
         return ResponseEntity
             .created(new URI("/api/customers/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -79,23 +79,23 @@ public class CustomersResource {
     /**
      * {@code PUT  /customers/:id} : Updates an existing customers.
      *
-     * @param id the id of the customersDTO to save.
-     * @param customersDTO the customersDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated customersDTO,
-     * or with status {@code 400 (Bad Request)} if the customersDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the customersDTO couldn't be updated.
+     * @param id the id of the customers to save.
+     * @param customers the customers to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated customers,
+     * or with status {@code 400 (Bad Request)} if the customers is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the customers couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/customers/{id}")
-    public ResponseEntity<CustomersDTO> updateCustomers(
+    public ResponseEntity<Customers> updateCustomers(
         @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody CustomersDTO customersDTO
+        @Valid @RequestBody Customers customers
     ) throws URISyntaxException {
-        log.debug("REST request to update Customers : {}, {}", id, customersDTO);
-        if (customersDTO.getId() == null) {
+        log.debug("REST request to update Customers : {}, {}", id, customers);
+        if (customers.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, customersDTO.getId())) {
+        if (!Objects.equals(id, customers.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -103,34 +103,34 @@ public class CustomersResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        CustomersDTO result = customersService.update(customersDTO);
+        Customers result = customersService.update(customers);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, customersDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, customers.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /customers/:id} : Partial updates given fields of an existing customers, field will ignore if it is null
      *
-     * @param id the id of the customersDTO to save.
-     * @param customersDTO the customersDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated customersDTO,
-     * or with status {@code 400 (Bad Request)} if the customersDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the customersDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the customersDTO couldn't be updated.
+     * @param id the id of the customers to save.
+     * @param customers the customers to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated customers,
+     * or with status {@code 400 (Bad Request)} if the customers is not valid,
+     * or with status {@code 404 (Not Found)} if the customers is not found,
+     * or with status {@code 500 (Internal Server Error)} if the customers couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/customers/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<CustomersDTO> partialUpdateCustomers(
+    public ResponseEntity<Customers> partialUpdateCustomers(
         @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody CustomersDTO customersDTO
+        @NotNull @RequestBody Customers customers
     ) throws URISyntaxException {
-        log.debug("REST request to partial update Customers partially : {}, {}", id, customersDTO);
-        if (customersDTO.getId() == null) {
+        log.debug("REST request to partial update Customers partially : {}, {}", id, customers);
+        if (customers.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, customersDTO.getId())) {
+        if (!Objects.equals(id, customers.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -138,11 +138,11 @@ public class CustomersResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<CustomersDTO> result = customersService.partialUpdate(customersDTO);
+        Optional<Customers> result = customersService.partialUpdate(customers);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, customersDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, customers.getId().toString())
         );
     }
 
@@ -154,12 +154,12 @@ public class CustomersResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of customers in body.
      */
     @GetMapping("/customers")
-    public ResponseEntity<List<CustomersDTO>> getAllCustomers(
+    public ResponseEntity<List<Customers>> getAllCustomers(
         CustomersCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get Customers by criteria: {}", criteria);
-        Page<CustomersDTO> page = customersQueryService.findByCriteria(criteria, pageable);
+        Page<Customers> page = customersQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -179,20 +179,20 @@ public class CustomersResource {
     /**
      * {@code GET  /customers/:id} : get the "id" customers.
      *
-     * @param id the id of the customersDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the customersDTO, or with status {@code 404 (Not Found)}.
+     * @param id the id of the customers to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the customers, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/customers/{id}")
-    public ResponseEntity<CustomersDTO> getCustomers(@PathVariable Long id) {
+    public ResponseEntity<Customers> getCustomers(@PathVariable Long id) {
         log.debug("REST request to get Customers : {}", id);
-        Optional<CustomersDTO> customersDTO = customersService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(customersDTO);
+        Optional<Customers> customers = customersService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(customers);
     }
 
     /**
      * {@code DELETE  /customers/:id} : delete the "id" customers.
      *
-     * @param id the id of the customersDTO to delete.
+     * @param id the id of the customers to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/customers/{id}")

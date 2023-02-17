@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.Orders;
 import com.venturedive.daraz.repository.OrdersRepository;
-import com.venturedive.daraz.service.dto.OrdersDTO;
-import com.venturedive.daraz.service.mapper.OrdersMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,54 @@ public class OrdersService {
 
     private final OrdersRepository ordersRepository;
 
-    private final OrdersMapper ordersMapper;
-
-    public OrdersService(OrdersRepository ordersRepository, OrdersMapper ordersMapper) {
+    public OrdersService(OrdersRepository ordersRepository) {
         this.ordersRepository = ordersRepository;
-        this.ordersMapper = ordersMapper;
     }
 
     /**
      * Save a orders.
      *
-     * @param ordersDTO the entity to save.
+     * @param orders the entity to save.
      * @return the persisted entity.
      */
-    public OrdersDTO save(OrdersDTO ordersDTO) {
-        log.debug("Request to save Orders : {}", ordersDTO);
-        Orders orders = ordersMapper.toEntity(ordersDTO);
-        orders = ordersRepository.save(orders);
-        return ordersMapper.toDto(orders);
+    public Orders save(Orders orders) {
+        log.debug("Request to save Orders : {}", orders);
+        return ordersRepository.save(orders);
     }
 
     /**
      * Update a orders.
      *
-     * @param ordersDTO the entity to save.
+     * @param orders the entity to save.
      * @return the persisted entity.
      */
-    public OrdersDTO update(OrdersDTO ordersDTO) {
-        log.debug("Request to update Orders : {}", ordersDTO);
-        Orders orders = ordersMapper.toEntity(ordersDTO);
-        orders = ordersRepository.save(orders);
-        return ordersMapper.toDto(orders);
+    public Orders update(Orders orders) {
+        log.debug("Request to update Orders : {}", orders);
+        return ordersRepository.save(orders);
     }
 
     /**
      * Partially update a orders.
      *
-     * @param ordersDTO the entity to update partially.
+     * @param orders the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<OrdersDTO> partialUpdate(OrdersDTO ordersDTO) {
-        log.debug("Request to partially update Orders : {}", ordersDTO);
+    public Optional<Orders> partialUpdate(Orders orders) {
+        log.debug("Request to partially update Orders : {}", orders);
 
         return ordersRepository
-            .findById(ordersDTO.getId())
+            .findById(orders.getId())
             .map(existingOrders -> {
-                ordersMapper.partialUpdate(existingOrders, ordersDTO);
+                if (orders.getOrderDate() != null) {
+                    existingOrders.setOrderDate(orders.getOrderDate());
+                }
+                if (orders.getTotalAmount() != null) {
+                    existingOrders.setTotalAmount(orders.getTotalAmount());
+                }
 
                 return existingOrders;
             })
-            .map(ordersRepository::save)
-            .map(ordersMapper::toDto);
+            .map(ordersRepository::save);
     }
 
     /**
@@ -83,9 +78,9 @@ public class OrdersService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<OrdersDTO> findAll(Pageable pageable) {
+    public Page<Orders> findAll(Pageable pageable) {
         log.debug("Request to get all Orders");
-        return ordersRepository.findAll(pageable).map(ordersMapper::toDto);
+        return ordersRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +90,9 @@ public class OrdersService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<OrdersDTO> findOne(Long id) {
+    public Optional<Orders> findOne(Long id) {
         log.debug("Request to get Orders : {}", id);
-        return ordersRepository.findById(id).map(ordersMapper::toDto);
+        return ordersRepository.findById(id);
     }
 
     /**

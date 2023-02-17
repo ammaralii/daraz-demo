@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.DarazUsers;
 import com.venturedive.daraz.repository.DarazUsersRepository;
-import com.venturedive.daraz.service.dto.DarazUsersDTO;
-import com.venturedive.daraz.service.mapper.DarazUsersMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,57 @@ public class DarazUsersService {
 
     private final DarazUsersRepository darazUsersRepository;
 
-    private final DarazUsersMapper darazUsersMapper;
-
-    public DarazUsersService(DarazUsersRepository darazUsersRepository, DarazUsersMapper darazUsersMapper) {
+    public DarazUsersService(DarazUsersRepository darazUsersRepository) {
         this.darazUsersRepository = darazUsersRepository;
-        this.darazUsersMapper = darazUsersMapper;
     }
 
     /**
      * Save a darazUsers.
      *
-     * @param darazUsersDTO the entity to save.
+     * @param darazUsers the entity to save.
      * @return the persisted entity.
      */
-    public DarazUsersDTO save(DarazUsersDTO darazUsersDTO) {
-        log.debug("Request to save DarazUsers : {}", darazUsersDTO);
-        DarazUsers darazUsers = darazUsersMapper.toEntity(darazUsersDTO);
-        darazUsers = darazUsersRepository.save(darazUsers);
-        return darazUsersMapper.toDto(darazUsers);
+    public DarazUsers save(DarazUsers darazUsers) {
+        log.debug("Request to save DarazUsers : {}", darazUsers);
+        return darazUsersRepository.save(darazUsers);
     }
 
     /**
      * Update a darazUsers.
      *
-     * @param darazUsersDTO the entity to save.
+     * @param darazUsers the entity to save.
      * @return the persisted entity.
      */
-    public DarazUsersDTO update(DarazUsersDTO darazUsersDTO) {
-        log.debug("Request to update DarazUsers : {}", darazUsersDTO);
-        DarazUsers darazUsers = darazUsersMapper.toEntity(darazUsersDTO);
-        darazUsers = darazUsersRepository.save(darazUsers);
-        return darazUsersMapper.toDto(darazUsers);
+    public DarazUsers update(DarazUsers darazUsers) {
+        log.debug("Request to update DarazUsers : {}", darazUsers);
+        return darazUsersRepository.save(darazUsers);
     }
 
     /**
      * Partially update a darazUsers.
      *
-     * @param darazUsersDTO the entity to update partially.
+     * @param darazUsers the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<DarazUsersDTO> partialUpdate(DarazUsersDTO darazUsersDTO) {
-        log.debug("Request to partially update DarazUsers : {}", darazUsersDTO);
+    public Optional<DarazUsers> partialUpdate(DarazUsers darazUsers) {
+        log.debug("Request to partially update DarazUsers : {}", darazUsers);
 
         return darazUsersRepository
-            .findById(darazUsersDTO.getId())
+            .findById(darazUsers.getId())
             .map(existingDarazUsers -> {
-                darazUsersMapper.partialUpdate(existingDarazUsers, darazUsersDTO);
+                if (darazUsers.getFullName() != null) {
+                    existingDarazUsers.setFullName(darazUsers.getFullName());
+                }
+                if (darazUsers.getEmail() != null) {
+                    existingDarazUsers.setEmail(darazUsers.getEmail());
+                }
+                if (darazUsers.getPhone() != null) {
+                    existingDarazUsers.setPhone(darazUsers.getPhone());
+                }
 
                 return existingDarazUsers;
             })
-            .map(darazUsersRepository::save)
-            .map(darazUsersMapper::toDto);
+            .map(darazUsersRepository::save);
     }
 
     /**
@@ -83,9 +81,9 @@ public class DarazUsersService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<DarazUsersDTO> findAll(Pageable pageable) {
+    public Page<DarazUsers> findAll(Pageable pageable) {
         log.debug("Request to get all DarazUsers");
-        return darazUsersRepository.findAll(pageable).map(darazUsersMapper::toDto);
+        return darazUsersRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +93,9 @@ public class DarazUsersService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<DarazUsersDTO> findOne(Long id) {
+    public Optional<DarazUsers> findOne(Long id) {
         log.debug("Request to get DarazUsers : {}", id);
-        return darazUsersRepository.findById(id).map(darazUsersMapper::toDto);
+        return darazUsersRepository.findById(id);
     }
 
     /**

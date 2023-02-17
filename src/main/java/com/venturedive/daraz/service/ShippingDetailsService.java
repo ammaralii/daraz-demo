@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.ShippingDetails;
 import com.venturedive.daraz.repository.ShippingDetailsRepository;
-import com.venturedive.daraz.service.dto.ShippingDetailsDTO;
-import com.venturedive.daraz.service.mapper.ShippingDetailsMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,57 @@ public class ShippingDetailsService {
 
     private final ShippingDetailsRepository shippingDetailsRepository;
 
-    private final ShippingDetailsMapper shippingDetailsMapper;
-
-    public ShippingDetailsService(ShippingDetailsRepository shippingDetailsRepository, ShippingDetailsMapper shippingDetailsMapper) {
+    public ShippingDetailsService(ShippingDetailsRepository shippingDetailsRepository) {
         this.shippingDetailsRepository = shippingDetailsRepository;
-        this.shippingDetailsMapper = shippingDetailsMapper;
     }
 
     /**
      * Save a shippingDetails.
      *
-     * @param shippingDetailsDTO the entity to save.
+     * @param shippingDetails the entity to save.
      * @return the persisted entity.
      */
-    public ShippingDetailsDTO save(ShippingDetailsDTO shippingDetailsDTO) {
-        log.debug("Request to save ShippingDetails : {}", shippingDetailsDTO);
-        ShippingDetails shippingDetails = shippingDetailsMapper.toEntity(shippingDetailsDTO);
-        shippingDetails = shippingDetailsRepository.save(shippingDetails);
-        return shippingDetailsMapper.toDto(shippingDetails);
+    public ShippingDetails save(ShippingDetails shippingDetails) {
+        log.debug("Request to save ShippingDetails : {}", shippingDetails);
+        return shippingDetailsRepository.save(shippingDetails);
     }
 
     /**
      * Update a shippingDetails.
      *
-     * @param shippingDetailsDTO the entity to save.
+     * @param shippingDetails the entity to save.
      * @return the persisted entity.
      */
-    public ShippingDetailsDTO update(ShippingDetailsDTO shippingDetailsDTO) {
-        log.debug("Request to update ShippingDetails : {}", shippingDetailsDTO);
-        ShippingDetails shippingDetails = shippingDetailsMapper.toEntity(shippingDetailsDTO);
-        shippingDetails = shippingDetailsRepository.save(shippingDetails);
-        return shippingDetailsMapper.toDto(shippingDetails);
+    public ShippingDetails update(ShippingDetails shippingDetails) {
+        log.debug("Request to update ShippingDetails : {}", shippingDetails);
+        return shippingDetailsRepository.save(shippingDetails);
     }
 
     /**
      * Partially update a shippingDetails.
      *
-     * @param shippingDetailsDTO the entity to update partially.
+     * @param shippingDetails the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<ShippingDetailsDTO> partialUpdate(ShippingDetailsDTO shippingDetailsDTO) {
-        log.debug("Request to partially update ShippingDetails : {}", shippingDetailsDTO);
+    public Optional<ShippingDetails> partialUpdate(ShippingDetails shippingDetails) {
+        log.debug("Request to partially update ShippingDetails : {}", shippingDetails);
 
         return shippingDetailsRepository
-            .findById(shippingDetailsDTO.getId())
+            .findById(shippingDetails.getId())
             .map(existingShippingDetails -> {
-                shippingDetailsMapper.partialUpdate(existingShippingDetails, shippingDetailsDTO);
+                if (shippingDetails.getShippingAddress() != null) {
+                    existingShippingDetails.setShippingAddress(shippingDetails.getShippingAddress());
+                }
+                if (shippingDetails.getShippingMethod() != null) {
+                    existingShippingDetails.setShippingMethod(shippingDetails.getShippingMethod());
+                }
+                if (shippingDetails.getEstimatedDeliveryDate() != null) {
+                    existingShippingDetails.setEstimatedDeliveryDate(shippingDetails.getEstimatedDeliveryDate());
+                }
 
                 return existingShippingDetails;
             })
-            .map(shippingDetailsRepository::save)
-            .map(shippingDetailsMapper::toDto);
+            .map(shippingDetailsRepository::save);
     }
 
     /**
@@ -83,9 +81,9 @@ public class ShippingDetailsService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<ShippingDetailsDTO> findAll(Pageable pageable) {
+    public Page<ShippingDetails> findAll(Pageable pageable) {
         log.debug("Request to get all ShippingDetails");
-        return shippingDetailsRepository.findAll(pageable).map(shippingDetailsMapper::toDto);
+        return shippingDetailsRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +93,9 @@ public class ShippingDetailsService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<ShippingDetailsDTO> findOne(Long id) {
+    public Optional<ShippingDetails> findOne(Long id) {
         log.debug("Request to get ShippingDetails : {}", id);
-        return shippingDetailsRepository.findById(id).map(shippingDetailsMapper::toDto);
+        return shippingDetailsRepository.findById(id);
     }
 
     /**

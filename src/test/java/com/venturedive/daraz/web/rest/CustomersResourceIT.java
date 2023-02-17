@@ -11,8 +11,6 @@ import com.venturedive.daraz.domain.Orders;
 import com.venturedive.daraz.domain.PaymentMethods;
 import com.venturedive.daraz.repository.CustomersRepository;
 import com.venturedive.daraz.service.criteria.CustomersCriteria;
-import com.venturedive.daraz.service.dto.CustomersDTO;
-import com.venturedive.daraz.service.mapper.CustomersMapper;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -51,9 +49,6 @@ class CustomersResourceIT {
 
     @Autowired
     private CustomersRepository customersRepository;
-
-    @Autowired
-    private CustomersMapper customersMapper;
 
     @Autowired
     private EntityManager em;
@@ -95,9 +90,8 @@ class CustomersResourceIT {
     void createCustomers() throws Exception {
         int databaseSizeBeforeCreate = customersRepository.findAll().size();
         // Create the Customers
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
         restCustomersMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customersDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customers)))
             .andExpect(status().isCreated());
 
         // Validate the Customers in the database
@@ -114,13 +108,12 @@ class CustomersResourceIT {
     void createCustomersWithExistingId() throws Exception {
         // Create the Customers with an existing ID
         customers.setId(1L);
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
 
         int databaseSizeBeforeCreate = customersRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCustomersMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customersDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customers)))
             .andExpect(status().isBadRequest());
 
         // Validate the Customers in the database
@@ -136,10 +129,9 @@ class CustomersResourceIT {
         customers.setFullName(null);
 
         // Create the Customers, which fails.
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
 
         restCustomersMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customersDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customers)))
             .andExpect(status().isBadRequest());
 
         List<Customers> customersList = customersRepository.findAll();
@@ -154,10 +146,9 @@ class CustomersResourceIT {
         customers.setEmail(null);
 
         // Create the Customers, which fails.
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
 
         restCustomersMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customersDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customers)))
             .andExpect(status().isBadRequest());
 
         List<Customers> customersList = customersRepository.findAll();
@@ -172,10 +163,9 @@ class CustomersResourceIT {
         customers.setPhone(null);
 
         // Create the Customers, which fails.
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
 
         restCustomersMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customersDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customers)))
             .andExpect(status().isBadRequest());
 
         List<Customers> customersList = customersRepository.findAll();
@@ -535,13 +525,12 @@ class CustomersResourceIT {
         // Disconnect from session so that the updates on updatedCustomers are not directly saved in db
         em.detach(updatedCustomers);
         updatedCustomers.fullName(UPDATED_FULL_NAME).email(UPDATED_EMAIL).phone(UPDATED_PHONE);
-        CustomersDTO customersDTO = customersMapper.toDto(updatedCustomers);
 
         restCustomersMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, customersDTO.getId())
+                put(ENTITY_API_URL_ID, updatedCustomers.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(customersDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(updatedCustomers))
             )
             .andExpect(status().isOk());
 
@@ -560,15 +549,12 @@ class CustomersResourceIT {
         int databaseSizeBeforeUpdate = customersRepository.findAll().size();
         customers.setId(count.incrementAndGet());
 
-        // Create the Customers
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restCustomersMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, customersDTO.getId())
+                put(ENTITY_API_URL_ID, customers.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(customersDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(customers))
             )
             .andExpect(status().isBadRequest());
 
@@ -583,15 +569,12 @@ class CustomersResourceIT {
         int databaseSizeBeforeUpdate = customersRepository.findAll().size();
         customers.setId(count.incrementAndGet());
 
-        // Create the Customers
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restCustomersMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(customersDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(customers))
             )
             .andExpect(status().isBadRequest());
 
@@ -606,12 +589,9 @@ class CustomersResourceIT {
         int databaseSizeBeforeUpdate = customersRepository.findAll().size();
         customers.setId(count.incrementAndGet());
 
-        // Create the Customers
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restCustomersMockMvc
-            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customersDTO)))
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(customers)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the Customers in the database
@@ -687,15 +667,12 @@ class CustomersResourceIT {
         int databaseSizeBeforeUpdate = customersRepository.findAll().size();
         customers.setId(count.incrementAndGet());
 
-        // Create the Customers
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restCustomersMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, customersDTO.getId())
+                patch(ENTITY_API_URL_ID, customers.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(customersDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(customers))
             )
             .andExpect(status().isBadRequest());
 
@@ -710,15 +687,12 @@ class CustomersResourceIT {
         int databaseSizeBeforeUpdate = customersRepository.findAll().size();
         customers.setId(count.incrementAndGet());
 
-        // Create the Customers
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restCustomersMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(customersDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(customers))
             )
             .andExpect(status().isBadRequest());
 
@@ -733,13 +707,10 @@ class CustomersResourceIT {
         int databaseSizeBeforeUpdate = customersRepository.findAll().size();
         customers.setId(count.incrementAndGet());
 
-        // Create the Customers
-        CustomersDTO customersDTO = customersMapper.toDto(customers);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restCustomersMockMvc
             .perform(
-                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(customersDTO))
+                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(customers))
             )
             .andExpect(status().isMethodNotAllowed());
 

@@ -12,8 +12,6 @@ import com.venturedive.daraz.domain.ShippingDetails;
 import com.venturedive.daraz.domain.enumeration.ShippingMethod;
 import com.venturedive.daraz.repository.ShippingDetailsRepository;
 import com.venturedive.daraz.service.criteria.ShippingDetailsCriteria;
-import com.venturedive.daraz.service.dto.ShippingDetailsDTO;
-import com.venturedive.daraz.service.mapper.ShippingDetailsMapper;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -55,9 +53,6 @@ class ShippingDetailsResourceIT {
 
     @Autowired
     private ShippingDetailsRepository shippingDetailsRepository;
-
-    @Autowired
-    private ShippingDetailsMapper shippingDetailsMapper;
 
     @Autowired
     private EntityManager em;
@@ -125,10 +120,9 @@ class ShippingDetailsResourceIT {
     void createShippingDetails() throws Exception {
         int databaseSizeBeforeCreate = shippingDetailsRepository.findAll().size();
         // Create the ShippingDetails
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
         restShippingDetailsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isCreated());
 
@@ -146,14 +140,13 @@ class ShippingDetailsResourceIT {
     void createShippingDetailsWithExistingId() throws Exception {
         // Create the ShippingDetails with an existing ID
         shippingDetails.setId(1L);
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
 
         int databaseSizeBeforeCreate = shippingDetailsRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restShippingDetailsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -170,11 +163,10 @@ class ShippingDetailsResourceIT {
         shippingDetails.setShippingAddress(null);
 
         // Create the ShippingDetails, which fails.
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
 
         restShippingDetailsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -190,11 +182,10 @@ class ShippingDetailsResourceIT {
         shippingDetails.setShippingMethod(null);
 
         // Create the ShippingDetails, which fails.
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
 
         restShippingDetailsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -210,11 +201,10 @@ class ShippingDetailsResourceIT {
         shippingDetails.setEstimatedDeliveryDate(null);
 
         // Create the ShippingDetails, which fails.
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
 
         restShippingDetailsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -580,13 +570,12 @@ class ShippingDetailsResourceIT {
             .shippingAddress(UPDATED_SHIPPING_ADDRESS)
             .shippingMethod(UPDATED_SHIPPING_METHOD)
             .estimatedDeliveryDate(UPDATED_ESTIMATED_DELIVERY_DATE);
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(updatedShippingDetails);
 
         restShippingDetailsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, shippingDetailsDTO.getId())
+                put(ENTITY_API_URL_ID, updatedShippingDetails.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(updatedShippingDetails))
             )
             .andExpect(status().isOk());
 
@@ -605,15 +594,12 @@ class ShippingDetailsResourceIT {
         int databaseSizeBeforeUpdate = shippingDetailsRepository.findAll().size();
         shippingDetails.setId(count.incrementAndGet());
 
-        // Create the ShippingDetails
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restShippingDetailsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, shippingDetailsDTO.getId())
+                put(ENTITY_API_URL_ID, shippingDetails.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -628,15 +614,12 @@ class ShippingDetailsResourceIT {
         int databaseSizeBeforeUpdate = shippingDetailsRepository.findAll().size();
         shippingDetails.setId(count.incrementAndGet());
 
-        // Create the ShippingDetails
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restShippingDetailsMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -651,13 +634,10 @@ class ShippingDetailsResourceIT {
         int databaseSizeBeforeUpdate = shippingDetailsRepository.findAll().size();
         shippingDetails.setId(count.incrementAndGet());
 
-        // Create the ShippingDetails
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restShippingDetailsMockMvc
             .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isMethodNotAllowed());
 
@@ -737,15 +717,12 @@ class ShippingDetailsResourceIT {
         int databaseSizeBeforeUpdate = shippingDetailsRepository.findAll().size();
         shippingDetails.setId(count.incrementAndGet());
 
-        // Create the ShippingDetails
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restShippingDetailsMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, shippingDetailsDTO.getId())
+                patch(ENTITY_API_URL_ID, shippingDetails.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -760,15 +737,12 @@ class ShippingDetailsResourceIT {
         int databaseSizeBeforeUpdate = shippingDetailsRepository.findAll().size();
         shippingDetails.setId(count.incrementAndGet());
 
-        // Create the ShippingDetails
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restShippingDetailsMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -783,15 +757,12 @@ class ShippingDetailsResourceIT {
         int databaseSizeBeforeUpdate = shippingDetailsRepository.findAll().size();
         shippingDetails.setId(count.incrementAndGet());
 
-        // Create the ShippingDetails
-        ShippingDetailsDTO shippingDetailsDTO = shippingDetailsMapper.toDto(shippingDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restShippingDetailsMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(shippingDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(shippingDetails))
             )
             .andExpect(status().isMethodNotAllowed());
 

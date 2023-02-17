@@ -1,7 +1,7 @@
 {
   "applications": "*",
   "changelogDate": "20230217124133",
-  "dto": "mapstruct",
+  "dto": "no",
   "embedded": false,
   "entityTableName": "daraz_users",
   "fields": [

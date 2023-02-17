@@ -11,8 +11,6 @@ import com.venturedive.daraz.domain.Orders;
 import com.venturedive.daraz.domain.Products;
 import com.venturedive.daraz.repository.OrderDetailsRepository;
 import com.venturedive.daraz.service.criteria.OrderDetailsCriteria;
-import com.venturedive.daraz.service.dto.OrderDetailsDTO;
-import com.venturedive.daraz.service.mapper.OrderDetailsMapper;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -50,9 +48,6 @@ class OrderDetailsResourceIT {
 
     @Autowired
     private OrderDetailsRepository orderDetailsRepository;
-
-    @Autowired
-    private OrderDetailsMapper orderDetailsMapper;
 
     @Autowired
     private EntityManager em;
@@ -134,11 +129,8 @@ class OrderDetailsResourceIT {
     void createOrderDetails() throws Exception {
         int databaseSizeBeforeCreate = orderDetailsRepository.findAll().size();
         // Create the OrderDetails
-        OrderDetailsDTO orderDetailsDTO = orderDetailsMapper.toDto(orderDetails);
         restOrderDetailsMockMvc
-            .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDetailsDTO))
-            )
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDetails)))
             .andExpect(status().isCreated());
 
         // Validate the OrderDetails in the database
@@ -154,15 +146,12 @@ class OrderDetailsResourceIT {
     void createOrderDetailsWithExistingId() throws Exception {
         // Create the OrderDetails with an existing ID
         orderDetails.setId(1L);
-        OrderDetailsDTO orderDetailsDTO = orderDetailsMapper.toDto(orderDetails);
 
         int databaseSizeBeforeCreate = orderDetailsRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restOrderDetailsMockMvc
-            .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDetailsDTO))
-            )
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDetails)))
             .andExpect(status().isBadRequest());
 
         // Validate the OrderDetails in the database
@@ -507,13 +496,12 @@ class OrderDetailsResourceIT {
         // Disconnect from session so that the updates on updatedOrderDetails are not directly saved in db
         em.detach(updatedOrderDetails);
         updatedOrderDetails.quantity(UPDATED_QUANTITY).amount(UPDATED_AMOUNT);
-        OrderDetailsDTO orderDetailsDTO = orderDetailsMapper.toDto(updatedOrderDetails);
 
         restOrderDetailsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, orderDetailsDTO.getId())
+                put(ENTITY_API_URL_ID, updatedOrderDetails.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(orderDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(updatedOrderDetails))
             )
             .andExpect(status().isOk());
 
@@ -531,15 +519,12 @@ class OrderDetailsResourceIT {
         int databaseSizeBeforeUpdate = orderDetailsRepository.findAll().size();
         orderDetails.setId(count.incrementAndGet());
 
-        // Create the OrderDetails
-        OrderDetailsDTO orderDetailsDTO = orderDetailsMapper.toDto(orderDetails);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restOrderDetailsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, orderDetailsDTO.getId())
+                put(ENTITY_API_URL_ID, orderDetails.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(orderDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(orderDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -554,15 +539,12 @@ class OrderDetailsResourceIT {
         int databaseSizeBeforeUpdate = orderDetailsRepository.findAll().size();
         orderDetails.setId(count.incrementAndGet());
 
-        // Create the OrderDetails
-        OrderDetailsDTO orderDetailsDTO = orderDetailsMapper.toDto(orderDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restOrderDetailsMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(orderDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(orderDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -577,14 +559,9 @@ class OrderDetailsResourceIT {
         int databaseSizeBeforeUpdate = orderDetailsRepository.findAll().size();
         orderDetails.setId(count.incrementAndGet());
 
-        // Create the OrderDetails
-        OrderDetailsDTO orderDetailsDTO = orderDetailsMapper.toDto(orderDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restOrderDetailsMockMvc
-            .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDetailsDTO))
-            )
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDetails)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the OrderDetails in the database
@@ -658,15 +635,12 @@ class OrderDetailsResourceIT {
         int databaseSizeBeforeUpdate = orderDetailsRepository.findAll().size();
         orderDetails.setId(count.incrementAndGet());
 
-        // Create the OrderDetails
-        OrderDetailsDTO orderDetailsDTO = orderDetailsMapper.toDto(orderDetails);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restOrderDetailsMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, orderDetailsDTO.getId())
+                patch(ENTITY_API_URL_ID, orderDetails.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(orderDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(orderDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -681,15 +655,12 @@ class OrderDetailsResourceIT {
         int databaseSizeBeforeUpdate = orderDetailsRepository.findAll().size();
         orderDetails.setId(count.incrementAndGet());
 
-        // Create the OrderDetails
-        OrderDetailsDTO orderDetailsDTO = orderDetailsMapper.toDto(orderDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restOrderDetailsMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(orderDetailsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(orderDetails))
             )
             .andExpect(status().isBadRequest());
 
@@ -704,15 +675,10 @@ class OrderDetailsResourceIT {
         int databaseSizeBeforeUpdate = orderDetailsRepository.findAll().size();
         orderDetails.setId(count.incrementAndGet());
 
-        // Create the OrderDetails
-        OrderDetailsDTO orderDetailsDTO = orderDetailsMapper.toDto(orderDetails);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restOrderDetailsMockMvc
             .perform(
-                patch(ENTITY_API_URL)
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(orderDetailsDTO))
+                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(orderDetails))
             )
             .andExpect(status().isMethodNotAllowed());
 

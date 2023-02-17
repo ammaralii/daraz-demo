@@ -12,8 +12,6 @@ import com.venturedive.daraz.domain.Colors;
 import com.venturedive.daraz.repository.ColorsRepository;
 import com.venturedive.daraz.service.ColorsService;
 import com.venturedive.daraz.service.criteria.ColorsCriteria;
-import com.venturedive.daraz.service.dto.ColorsDTO;
-import com.venturedive.daraz.service.mapper.ColorsMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -62,9 +60,6 @@ class ColorsResourceIT {
     @Mock
     private ColorsRepository colorsRepositoryMock;
 
-    @Autowired
-    private ColorsMapper colorsMapper;
-
     @Mock
     private ColorsService colorsServiceMock;
 
@@ -108,9 +103,8 @@ class ColorsResourceIT {
     void createColors() throws Exception {
         int databaseSizeBeforeCreate = colorsRepository.findAll().size();
         // Create the Colors
-        ColorsDTO colorsDTO = colorsMapper.toDto(colors);
         restColorsMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(colorsDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(colors)))
             .andExpect(status().isCreated());
 
         // Validate the Colors in the database
@@ -126,13 +120,12 @@ class ColorsResourceIT {
     void createColorsWithExistingId() throws Exception {
         // Create the Colors with an existing ID
         colors.setId(1L);
-        ColorsDTO colorsDTO = colorsMapper.toDto(colors);
 
         int databaseSizeBeforeCreate = colorsRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restColorsMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(colorsDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(colors)))
             .andExpect(status().isBadRequest());
 
         // Validate the Colors in the database
@@ -148,10 +141,9 @@ class ColorsResourceIT {
         colors.setColoruid(null);
 
         // Create the Colors, which fails.
-        ColorsDTO colorsDTO = colorsMapper.toDto(colors);
 
         restColorsMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(colorsDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(colors)))
             .andExpect(status().isBadRequest());
 
         List<Colors> colorsList = colorsRepository.findAll();
@@ -166,10 +158,9 @@ class ColorsResourceIT {
         colors.setName(null);
 
         // Create the Colors, which fails.
-        ColorsDTO colorsDTO = colorsMapper.toDto(colors);
 
         restColorsMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(colorsDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(colors)))
             .andExpect(status().isBadRequest());
 
         List<Colors> colorsList = colorsRepository.findAll();
@@ -481,13 +472,12 @@ class ColorsResourceIT {
         // Disconnect from session so that the updates on updatedColors are not directly saved in db
         em.detach(updatedColors);
         updatedColors.coloruid(UPDATED_COLORUID).name(UPDATED_NAME);
-        ColorsDTO colorsDTO = colorsMapper.toDto(updatedColors);
 
         restColorsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, colorsDTO.getId())
+                put(ENTITY_API_URL_ID, updatedColors.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(colorsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(updatedColors))
             )
             .andExpect(status().isOk());
 
@@ -505,15 +495,12 @@ class ColorsResourceIT {
         int databaseSizeBeforeUpdate = colorsRepository.findAll().size();
         colors.setId(count.incrementAndGet());
 
-        // Create the Colors
-        ColorsDTO colorsDTO = colorsMapper.toDto(colors);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restColorsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, colorsDTO.getId())
+                put(ENTITY_API_URL_ID, colors.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(colorsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(colors))
             )
             .andExpect(status().isBadRequest());
 
@@ -528,15 +515,12 @@ class ColorsResourceIT {
         int databaseSizeBeforeUpdate = colorsRepository.findAll().size();
         colors.setId(count.incrementAndGet());
 
-        // Create the Colors
-        ColorsDTO colorsDTO = colorsMapper.toDto(colors);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restColorsMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(colorsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(colors))
             )
             .andExpect(status().isBadRequest());
 
@@ -551,12 +535,9 @@ class ColorsResourceIT {
         int databaseSizeBeforeUpdate = colorsRepository.findAll().size();
         colors.setId(count.incrementAndGet());
 
-        // Create the Colors
-        ColorsDTO colorsDTO = colorsMapper.toDto(colors);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restColorsMockMvc
-            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(colorsDTO)))
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(colors)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the Colors in the database
@@ -630,15 +611,12 @@ class ColorsResourceIT {
         int databaseSizeBeforeUpdate = colorsRepository.findAll().size();
         colors.setId(count.incrementAndGet());
 
-        // Create the Colors
-        ColorsDTO colorsDTO = colorsMapper.toDto(colors);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restColorsMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, colorsDTO.getId())
+                patch(ENTITY_API_URL_ID, colors.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(colorsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(colors))
             )
             .andExpect(status().isBadRequest());
 
@@ -653,15 +631,12 @@ class ColorsResourceIT {
         int databaseSizeBeforeUpdate = colorsRepository.findAll().size();
         colors.setId(count.incrementAndGet());
 
-        // Create the Colors
-        ColorsDTO colorsDTO = colorsMapper.toDto(colors);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restColorsMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(colorsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(colors))
             )
             .andExpect(status().isBadRequest());
 
@@ -676,14 +651,9 @@ class ColorsResourceIT {
         int databaseSizeBeforeUpdate = colorsRepository.findAll().size();
         colors.setId(count.incrementAndGet());
 
-        // Create the Colors
-        ColorsDTO colorsDTO = colorsMapper.toDto(colors);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restColorsMockMvc
-            .perform(
-                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(colorsDTO))
-            )
+            .perform(patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(colors)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the Colors in the database

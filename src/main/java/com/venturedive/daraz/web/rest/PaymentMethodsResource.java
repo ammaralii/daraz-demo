@@ -1,10 +1,10 @@
 package com.venturedive.daraz.web.rest;
 
+import com.venturedive.daraz.domain.PaymentMethods;
 import com.venturedive.daraz.repository.PaymentMethodsRepository;
 import com.venturedive.daraz.service.PaymentMethodsQueryService;
 import com.venturedive.daraz.service.PaymentMethodsService;
 import com.venturedive.daraz.service.criteria.PaymentMethodsCriteria;
-import com.venturedive.daraz.service.dto.PaymentMethodsDTO;
 import com.venturedive.daraz.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,18 +59,18 @@ public class PaymentMethodsResource {
     /**
      * {@code POST  /payment-methods} : Create a new paymentMethods.
      *
-     * @param paymentMethodsDTO the paymentMethodsDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new paymentMethodsDTO, or with status {@code 400 (Bad Request)} if the paymentMethods has already an ID.
+     * @param paymentMethods the paymentMethods to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new paymentMethods, or with status {@code 400 (Bad Request)} if the paymentMethods has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/payment-methods")
-    public ResponseEntity<PaymentMethodsDTO> createPaymentMethods(@Valid @RequestBody PaymentMethodsDTO paymentMethodsDTO)
+    public ResponseEntity<PaymentMethods> createPaymentMethods(@Valid @RequestBody PaymentMethods paymentMethods)
         throws URISyntaxException {
-        log.debug("REST request to save PaymentMethods : {}", paymentMethodsDTO);
-        if (paymentMethodsDTO.getId() != null) {
+        log.debug("REST request to save PaymentMethods : {}", paymentMethods);
+        if (paymentMethods.getId() != null) {
             throw new BadRequestAlertException("A new paymentMethods cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        PaymentMethodsDTO result = paymentMethodsService.save(paymentMethodsDTO);
+        PaymentMethods result = paymentMethodsService.save(paymentMethods);
         return ResponseEntity
             .created(new URI("/api/payment-methods/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -80,23 +80,23 @@ public class PaymentMethodsResource {
     /**
      * {@code PUT  /payment-methods/:id} : Updates an existing paymentMethods.
      *
-     * @param id the id of the paymentMethodsDTO to save.
-     * @param paymentMethodsDTO the paymentMethodsDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated paymentMethodsDTO,
-     * or with status {@code 400 (Bad Request)} if the paymentMethodsDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the paymentMethodsDTO couldn't be updated.
+     * @param id the id of the paymentMethods to save.
+     * @param paymentMethods the paymentMethods to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated paymentMethods,
+     * or with status {@code 400 (Bad Request)} if the paymentMethods is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the paymentMethods couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/payment-methods/{id}")
-    public ResponseEntity<PaymentMethodsDTO> updatePaymentMethods(
+    public ResponseEntity<PaymentMethods> updatePaymentMethods(
         @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody PaymentMethodsDTO paymentMethodsDTO
+        @Valid @RequestBody PaymentMethods paymentMethods
     ) throws URISyntaxException {
-        log.debug("REST request to update PaymentMethods : {}, {}", id, paymentMethodsDTO);
-        if (paymentMethodsDTO.getId() == null) {
+        log.debug("REST request to update PaymentMethods : {}, {}", id, paymentMethods);
+        if (paymentMethods.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, paymentMethodsDTO.getId())) {
+        if (!Objects.equals(id, paymentMethods.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -104,34 +104,34 @@ public class PaymentMethodsResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        PaymentMethodsDTO result = paymentMethodsService.update(paymentMethodsDTO);
+        PaymentMethods result = paymentMethodsService.update(paymentMethods);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, paymentMethodsDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, paymentMethods.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /payment-methods/:id} : Partial updates given fields of an existing paymentMethods, field will ignore if it is null
      *
-     * @param id the id of the paymentMethodsDTO to save.
-     * @param paymentMethodsDTO the paymentMethodsDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated paymentMethodsDTO,
-     * or with status {@code 400 (Bad Request)} if the paymentMethodsDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the paymentMethodsDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the paymentMethodsDTO couldn't be updated.
+     * @param id the id of the paymentMethods to save.
+     * @param paymentMethods the paymentMethods to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated paymentMethods,
+     * or with status {@code 400 (Bad Request)} if the paymentMethods is not valid,
+     * or with status {@code 404 (Not Found)} if the paymentMethods is not found,
+     * or with status {@code 500 (Internal Server Error)} if the paymentMethods couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/payment-methods/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<PaymentMethodsDTO> partialUpdatePaymentMethods(
+    public ResponseEntity<PaymentMethods> partialUpdatePaymentMethods(
         @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody PaymentMethodsDTO paymentMethodsDTO
+        @NotNull @RequestBody PaymentMethods paymentMethods
     ) throws URISyntaxException {
-        log.debug("REST request to partial update PaymentMethods partially : {}, {}", id, paymentMethodsDTO);
-        if (paymentMethodsDTO.getId() == null) {
+        log.debug("REST request to partial update PaymentMethods partially : {}, {}", id, paymentMethods);
+        if (paymentMethods.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, paymentMethodsDTO.getId())) {
+        if (!Objects.equals(id, paymentMethods.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -139,11 +139,11 @@ public class PaymentMethodsResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<PaymentMethodsDTO> result = paymentMethodsService.partialUpdate(paymentMethodsDTO);
+        Optional<PaymentMethods> result = paymentMethodsService.partialUpdate(paymentMethods);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, paymentMethodsDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, paymentMethods.getId().toString())
         );
     }
 
@@ -155,12 +155,12 @@ public class PaymentMethodsResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of paymentMethods in body.
      */
     @GetMapping("/payment-methods")
-    public ResponseEntity<List<PaymentMethodsDTO>> getAllPaymentMethods(
+    public ResponseEntity<List<PaymentMethods>> getAllPaymentMethods(
         PaymentMethodsCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get PaymentMethods by criteria: {}", criteria);
-        Page<PaymentMethodsDTO> page = paymentMethodsQueryService.findByCriteria(criteria, pageable);
+        Page<PaymentMethods> page = paymentMethodsQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -180,20 +180,20 @@ public class PaymentMethodsResource {
     /**
      * {@code GET  /payment-methods/:id} : get the "id" paymentMethods.
      *
-     * @param id the id of the paymentMethodsDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the paymentMethodsDTO, or with status {@code 404 (Not Found)}.
+     * @param id the id of the paymentMethods to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the paymentMethods, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/payment-methods/{id}")
-    public ResponseEntity<PaymentMethodsDTO> getPaymentMethods(@PathVariable Long id) {
+    public ResponseEntity<PaymentMethods> getPaymentMethods(@PathVariable Long id) {
         log.debug("REST request to get PaymentMethods : {}", id);
-        Optional<PaymentMethodsDTO> paymentMethodsDTO = paymentMethodsService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(paymentMethodsDTO);
+        Optional<PaymentMethods> paymentMethods = paymentMethodsService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(paymentMethods);
     }
 
     /**
      * {@code DELETE  /payment-methods/:id} : delete the "id" paymentMethods.
      *
-     * @param id the id of the paymentMethodsDTO to delete.
+     * @param id the id of the paymentMethods to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/payment-methods/{id}")

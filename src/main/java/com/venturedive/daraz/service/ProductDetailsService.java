@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.ProductDetails;
 import com.venturedive.daraz.repository.ProductDetailsRepository;
-import com.venturedive.daraz.service.dto.ProductDetailsDTO;
-import com.venturedive.daraz.service.mapper.ProductDetailsMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,57 @@ public class ProductDetailsService {
 
     private final ProductDetailsRepository productDetailsRepository;
 
-    private final ProductDetailsMapper productDetailsMapper;
-
-    public ProductDetailsService(ProductDetailsRepository productDetailsRepository, ProductDetailsMapper productDetailsMapper) {
+    public ProductDetailsService(ProductDetailsRepository productDetailsRepository) {
         this.productDetailsRepository = productDetailsRepository;
-        this.productDetailsMapper = productDetailsMapper;
     }
 
     /**
      * Save a productDetails.
      *
-     * @param productDetailsDTO the entity to save.
+     * @param productDetails the entity to save.
      * @return the persisted entity.
      */
-    public ProductDetailsDTO save(ProductDetailsDTO productDetailsDTO) {
-        log.debug("Request to save ProductDetails : {}", productDetailsDTO);
-        ProductDetails productDetails = productDetailsMapper.toEntity(productDetailsDTO);
-        productDetails = productDetailsRepository.save(productDetails);
-        return productDetailsMapper.toDto(productDetails);
+    public ProductDetails save(ProductDetails productDetails) {
+        log.debug("Request to save ProductDetails : {}", productDetails);
+        return productDetailsRepository.save(productDetails);
     }
 
     /**
      * Update a productDetails.
      *
-     * @param productDetailsDTO the entity to save.
+     * @param productDetails the entity to save.
      * @return the persisted entity.
      */
-    public ProductDetailsDTO update(ProductDetailsDTO productDetailsDTO) {
-        log.debug("Request to update ProductDetails : {}", productDetailsDTO);
-        ProductDetails productDetails = productDetailsMapper.toEntity(productDetailsDTO);
-        productDetails = productDetailsRepository.save(productDetails);
-        return productDetailsMapper.toDto(productDetails);
+    public ProductDetails update(ProductDetails productDetails) {
+        log.debug("Request to update ProductDetails : {}", productDetails);
+        return productDetailsRepository.save(productDetails);
     }
 
     /**
      * Partially update a productDetails.
      *
-     * @param productDetailsDTO the entity to update partially.
+     * @param productDetails the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<ProductDetailsDTO> partialUpdate(ProductDetailsDTO productDetailsDTO) {
-        log.debug("Request to partially update ProductDetails : {}", productDetailsDTO);
+    public Optional<ProductDetails> partialUpdate(ProductDetails productDetails) {
+        log.debug("Request to partially update ProductDetails : {}", productDetails);
 
         return productDetailsRepository
-            .findById(productDetailsDTO.getId())
+            .findById(productDetails.getId())
             .map(existingProductDetails -> {
-                productDetailsMapper.partialUpdate(existingProductDetails, productDetailsDTO);
+                if (productDetails.getDescription() != null) {
+                    existingProductDetails.setDescription(productDetails.getDescription());
+                }
+                if (productDetails.getImageUrl() != null) {
+                    existingProductDetails.setImageUrl(productDetails.getImageUrl());
+                }
+                if (productDetails.getIsavailable() != null) {
+                    existingProductDetails.setIsavailable(productDetails.getIsavailable());
+                }
 
                 return existingProductDetails;
             })
-            .map(productDetailsRepository::save)
-            .map(productDetailsMapper::toDto);
+            .map(productDetailsRepository::save);
     }
 
     /**
@@ -83,9 +81,9 @@ public class ProductDetailsService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<ProductDetailsDTO> findAll(Pageable pageable) {
+    public Page<ProductDetails> findAll(Pageable pageable) {
         log.debug("Request to get all ProductDetails");
-        return productDetailsRepository.findAll(pageable).map(productDetailsMapper::toDto);
+        return productDetailsRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +93,9 @@ public class ProductDetailsService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<ProductDetailsDTO> findOne(Long id) {
+    public Optional<ProductDetails> findOne(Long id) {
         log.debug("Request to get ProductDetails : {}", id);
-        return productDetailsRepository.findById(id).map(productDetailsMapper::toDto);
+        return productDetailsRepository.findById(id);
     }
 
     /**

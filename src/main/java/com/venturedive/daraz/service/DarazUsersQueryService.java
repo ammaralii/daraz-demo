@@ -4,8 +4,6 @@ import com.venturedive.daraz.domain.*; // for static metamodels
 import com.venturedive.daraz.domain.DarazUsers;
 import com.venturedive.daraz.repository.DarazUsersRepository;
 import com.venturedive.daraz.service.criteria.DarazUsersCriteria;
-import com.venturedive.daraz.service.dto.DarazUsersDTO;
-import com.venturedive.daraz.service.mapper.DarazUsersMapper;
 import java.util.List;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
@@ -21,7 +19,7 @@ import tech.jhipster.service.QueryService;
  * Service for executing complex queries for {@link DarazUsers} entities in the database.
  * The main input is a {@link DarazUsersCriteria} which gets converted to {@link Specification},
  * in a way that all the filters must apply.
- * It returns a {@link List} of {@link DarazUsersDTO} or a {@link Page} of {@link DarazUsersDTO} which fulfills the criteria.
+ * It returns a {@link List} of {@link DarazUsers} or a {@link Page} of {@link DarazUsers} which fulfills the criteria.
  */
 @Service
 @Transactional(readOnly = true)
@@ -31,36 +29,33 @@ public class DarazUsersQueryService extends QueryService<DarazUsers> {
 
     private final DarazUsersRepository darazUsersRepository;
 
-    private final DarazUsersMapper darazUsersMapper;
-
-    public DarazUsersQueryService(DarazUsersRepository darazUsersRepository, DarazUsersMapper darazUsersMapper) {
+    public DarazUsersQueryService(DarazUsersRepository darazUsersRepository) {
         this.darazUsersRepository = darazUsersRepository;
-        this.darazUsersMapper = darazUsersMapper;
     }
 
     /**
-     * Return a {@link List} of {@link DarazUsersDTO} which matches the criteria from the database.
+     * Return a {@link List} of {@link DarazUsers} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public List<DarazUsersDTO> findByCriteria(DarazUsersCriteria criteria) {
+    public List<DarazUsers> findByCriteria(DarazUsersCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
         final Specification<DarazUsers> specification = createSpecification(criteria);
-        return darazUsersMapper.toDto(darazUsersRepository.findAll(specification));
+        return darazUsersRepository.findAll(specification);
     }
 
     /**
-     * Return a {@link Page} of {@link DarazUsersDTO} which matches the criteria from the database.
+     * Return a {@link Page} of {@link DarazUsers} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @param page The page, which should be returned.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public Page<DarazUsersDTO> findByCriteria(DarazUsersCriteria criteria, Pageable page) {
+    public Page<DarazUsers> findByCriteria(DarazUsersCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<DarazUsers> specification = createSpecification(criteria);
-        return darazUsersRepository.findAll(specification, page).map(darazUsersMapper::toDto);
+        return darazUsersRepository.findAll(specification, page);
     }
 
     /**

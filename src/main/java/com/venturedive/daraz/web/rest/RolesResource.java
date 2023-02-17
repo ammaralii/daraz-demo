@@ -1,10 +1,10 @@
 package com.venturedive.daraz.web.rest;
 
+import com.venturedive.daraz.domain.Roles;
 import com.venturedive.daraz.repository.RolesRepository;
 import com.venturedive.daraz.service.RolesQueryService;
 import com.venturedive.daraz.service.RolesService;
 import com.venturedive.daraz.service.criteria.RolesCriteria;
-import com.venturedive.daraz.service.dto.RolesDTO;
 import com.venturedive.daraz.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -55,17 +55,17 @@ public class RolesResource {
     /**
      * {@code POST  /roles} : Create a new roles.
      *
-     * @param rolesDTO the rolesDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new rolesDTO, or with status {@code 400 (Bad Request)} if the roles has already an ID.
+     * @param roles the roles to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new roles, or with status {@code 400 (Bad Request)} if the roles has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/roles")
-    public ResponseEntity<RolesDTO> createRoles(@Valid @RequestBody RolesDTO rolesDTO) throws URISyntaxException {
-        log.debug("REST request to save Roles : {}", rolesDTO);
-        if (rolesDTO.getId() != null) {
+    public ResponseEntity<Roles> createRoles(@Valid @RequestBody Roles roles) throws URISyntaxException {
+        log.debug("REST request to save Roles : {}", roles);
+        if (roles.getId() != null) {
             throw new BadRequestAlertException("A new roles cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        RolesDTO result = rolesService.save(rolesDTO);
+        Roles result = rolesService.save(roles);
         return ResponseEntity
             .created(new URI("/api/roles/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -75,23 +75,21 @@ public class RolesResource {
     /**
      * {@code PUT  /roles/:id} : Updates an existing roles.
      *
-     * @param id the id of the rolesDTO to save.
-     * @param rolesDTO the rolesDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated rolesDTO,
-     * or with status {@code 400 (Bad Request)} if the rolesDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the rolesDTO couldn't be updated.
+     * @param id the id of the roles to save.
+     * @param roles the roles to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated roles,
+     * or with status {@code 400 (Bad Request)} if the roles is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the roles couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/roles/{id}")
-    public ResponseEntity<RolesDTO> updateRoles(
-        @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody RolesDTO rolesDTO
-    ) throws URISyntaxException {
-        log.debug("REST request to update Roles : {}, {}", id, rolesDTO);
-        if (rolesDTO.getId() == null) {
+    public ResponseEntity<Roles> updateRoles(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Roles roles)
+        throws URISyntaxException {
+        log.debug("REST request to update Roles : {}, {}", id, roles);
+        if (roles.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, rolesDTO.getId())) {
+        if (!Objects.equals(id, roles.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -99,34 +97,34 @@ public class RolesResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        RolesDTO result = rolesService.update(rolesDTO);
+        Roles result = rolesService.update(roles);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, rolesDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, roles.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /roles/:id} : Partial updates given fields of an existing roles, field will ignore if it is null
      *
-     * @param id the id of the rolesDTO to save.
-     * @param rolesDTO the rolesDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated rolesDTO,
-     * or with status {@code 400 (Bad Request)} if the rolesDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the rolesDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the rolesDTO couldn't be updated.
+     * @param id the id of the roles to save.
+     * @param roles the roles to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated roles,
+     * or with status {@code 400 (Bad Request)} if the roles is not valid,
+     * or with status {@code 404 (Not Found)} if the roles is not found,
+     * or with status {@code 500 (Internal Server Error)} if the roles couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/roles/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<RolesDTO> partialUpdateRoles(
+    public ResponseEntity<Roles> partialUpdateRoles(
         @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody RolesDTO rolesDTO
+        @NotNull @RequestBody Roles roles
     ) throws URISyntaxException {
-        log.debug("REST request to partial update Roles partially : {}, {}", id, rolesDTO);
-        if (rolesDTO.getId() == null) {
+        log.debug("REST request to partial update Roles partially : {}, {}", id, roles);
+        if (roles.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, rolesDTO.getId())) {
+        if (!Objects.equals(id, roles.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -134,11 +132,11 @@ public class RolesResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<RolesDTO> result = rolesService.partialUpdate(rolesDTO);
+        Optional<Roles> result = rolesService.partialUpdate(roles);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, rolesDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, roles.getId().toString())
         );
     }
 
@@ -150,12 +148,12 @@ public class RolesResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of roles in body.
      */
     @GetMapping("/roles")
-    public ResponseEntity<List<RolesDTO>> getAllRoles(
+    public ResponseEntity<List<Roles>> getAllRoles(
         RolesCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get Roles by criteria: {}", criteria);
-        Page<RolesDTO> page = rolesQueryService.findByCriteria(criteria, pageable);
+        Page<Roles> page = rolesQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -175,20 +173,20 @@ public class RolesResource {
     /**
      * {@code GET  /roles/:id} : get the "id" roles.
      *
-     * @param id the id of the rolesDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the rolesDTO, or with status {@code 404 (Not Found)}.
+     * @param id the id of the roles to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the roles, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/roles/{id}")
-    public ResponseEntity<RolesDTO> getRoles(@PathVariable Long id) {
+    public ResponseEntity<Roles> getRoles(@PathVariable Long id) {
         log.debug("REST request to get Roles : {}", id);
-        Optional<RolesDTO> rolesDTO = rolesService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(rolesDTO);
+        Optional<Roles> roles = rolesService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(roles);
     }
 
     /**
      * {@code DELETE  /roles/:id} : delete the "id" roles.
      *
-     * @param id the id of the rolesDTO to delete.
+     * @param id the id of the roles to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/roles/{id}")

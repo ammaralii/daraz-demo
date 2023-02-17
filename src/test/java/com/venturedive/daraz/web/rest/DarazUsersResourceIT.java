@@ -13,8 +13,6 @@ import com.venturedive.daraz.domain.OrderDelivery;
 import com.venturedive.daraz.domain.Roles;
 import com.venturedive.daraz.repository.DarazUsersRepository;
 import com.venturedive.daraz.service.criteria.DarazUsersCriteria;
-import com.venturedive.daraz.service.dto.DarazUsersDTO;
-import com.venturedive.daraz.service.mapper.DarazUsersMapper;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -53,9 +51,6 @@ class DarazUsersResourceIT {
 
     @Autowired
     private DarazUsersRepository darazUsersRepository;
-
-    @Autowired
-    private DarazUsersMapper darazUsersMapper;
 
     @Autowired
     private EntityManager em;
@@ -97,9 +92,8 @@ class DarazUsersResourceIT {
     void createDarazUsers() throws Exception {
         int databaseSizeBeforeCreate = darazUsersRepository.findAll().size();
         // Create the DarazUsers
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
         restDarazUsersMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsersDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsers)))
             .andExpect(status().isCreated());
 
         // Validate the DarazUsers in the database
@@ -116,13 +110,12 @@ class DarazUsersResourceIT {
     void createDarazUsersWithExistingId() throws Exception {
         // Create the DarazUsers with an existing ID
         darazUsers.setId(1L);
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
 
         int databaseSizeBeforeCreate = darazUsersRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restDarazUsersMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsersDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsers)))
             .andExpect(status().isBadRequest());
 
         // Validate the DarazUsers in the database
@@ -138,10 +131,9 @@ class DarazUsersResourceIT {
         darazUsers.setFullName(null);
 
         // Create the DarazUsers, which fails.
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
 
         restDarazUsersMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsersDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsers)))
             .andExpect(status().isBadRequest());
 
         List<DarazUsers> darazUsersList = darazUsersRepository.findAll();
@@ -156,10 +148,9 @@ class DarazUsersResourceIT {
         darazUsers.setEmail(null);
 
         // Create the DarazUsers, which fails.
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
 
         restDarazUsersMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsersDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsers)))
             .andExpect(status().isBadRequest());
 
         List<DarazUsers> darazUsersList = darazUsersRepository.findAll();
@@ -174,10 +165,9 @@ class DarazUsersResourceIT {
         darazUsers.setPhone(null);
 
         // Create the DarazUsers, which fails.
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
 
         restDarazUsersMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsersDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsers)))
             .andExpect(status().isBadRequest());
 
         List<DarazUsers> darazUsersList = darazUsersRepository.findAll();
@@ -629,13 +619,12 @@ class DarazUsersResourceIT {
         // Disconnect from session so that the updates on updatedDarazUsers are not directly saved in db
         em.detach(updatedDarazUsers);
         updatedDarazUsers.fullName(UPDATED_FULL_NAME).email(UPDATED_EMAIL).phone(UPDATED_PHONE);
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(updatedDarazUsers);
 
         restDarazUsersMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, darazUsersDTO.getId())
+                put(ENTITY_API_URL_ID, updatedDarazUsers.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(darazUsersDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(updatedDarazUsers))
             )
             .andExpect(status().isOk());
 
@@ -654,15 +643,12 @@ class DarazUsersResourceIT {
         int databaseSizeBeforeUpdate = darazUsersRepository.findAll().size();
         darazUsers.setId(count.incrementAndGet());
 
-        // Create the DarazUsers
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restDarazUsersMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, darazUsersDTO.getId())
+                put(ENTITY_API_URL_ID, darazUsers.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(darazUsersDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(darazUsers))
             )
             .andExpect(status().isBadRequest());
 
@@ -677,15 +663,12 @@ class DarazUsersResourceIT {
         int databaseSizeBeforeUpdate = darazUsersRepository.findAll().size();
         darazUsers.setId(count.incrementAndGet());
 
-        // Create the DarazUsers
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restDarazUsersMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(darazUsersDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(darazUsers))
             )
             .andExpect(status().isBadRequest());
 
@@ -700,12 +683,9 @@ class DarazUsersResourceIT {
         int databaseSizeBeforeUpdate = darazUsersRepository.findAll().size();
         darazUsers.setId(count.incrementAndGet());
 
-        // Create the DarazUsers
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restDarazUsersMockMvc
-            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsersDTO)))
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(darazUsers)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the DarazUsers in the database
@@ -779,15 +759,12 @@ class DarazUsersResourceIT {
         int databaseSizeBeforeUpdate = darazUsersRepository.findAll().size();
         darazUsers.setId(count.incrementAndGet());
 
-        // Create the DarazUsers
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restDarazUsersMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, darazUsersDTO.getId())
+                patch(ENTITY_API_URL_ID, darazUsers.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(darazUsersDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(darazUsers))
             )
             .andExpect(status().isBadRequest());
 
@@ -802,15 +779,12 @@ class DarazUsersResourceIT {
         int databaseSizeBeforeUpdate = darazUsersRepository.findAll().size();
         darazUsers.setId(count.incrementAndGet());
 
-        // Create the DarazUsers
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restDarazUsersMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(darazUsersDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(darazUsers))
             )
             .andExpect(status().isBadRequest());
 
@@ -825,13 +799,10 @@ class DarazUsersResourceIT {
         int databaseSizeBeforeUpdate = darazUsersRepository.findAll().size();
         darazUsers.setId(count.incrementAndGet());
 
-        // Create the DarazUsers
-        DarazUsersDTO darazUsersDTO = darazUsersMapper.toDto(darazUsers);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restDarazUsersMockMvc
             .perform(
-                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(darazUsersDTO))
+                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(darazUsers))
             )
             .andExpect(status().isMethodNotAllowed());
 

@@ -10,8 +10,6 @@ import com.venturedive.daraz.domain.Customers;
 import com.venturedive.daraz.domain.PaymentMethods;
 import com.venturedive.daraz.repository.PaymentMethodsRepository;
 import com.venturedive.daraz.service.criteria.PaymentMethodsCriteria;
-import com.venturedive.daraz.service.dto.PaymentMethodsDTO;
-import com.venturedive.daraz.service.mapper.PaymentMethodsMapper;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -50,9 +48,6 @@ class PaymentMethodsResourceIT {
 
     @Autowired
     private PaymentMethodsRepository paymentMethodsRepository;
-
-    @Autowired
-    private PaymentMethodsMapper paymentMethodsMapper;
 
     @Autowired
     private EntityManager em;
@@ -120,10 +115,9 @@ class PaymentMethodsResourceIT {
     void createPaymentMethods() throws Exception {
         int databaseSizeBeforeCreate = paymentMethodsRepository.findAll().size();
         // Create the PaymentMethods
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
         restPaymentMethodsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethods))
             )
             .andExpect(status().isCreated());
 
@@ -141,14 +135,13 @@ class PaymentMethodsResourceIT {
     void createPaymentMethodsWithExistingId() throws Exception {
         // Create the PaymentMethods with an existing ID
         paymentMethods.setId(1L);
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
 
         int databaseSizeBeforeCreate = paymentMethodsRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restPaymentMethodsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethods))
             )
             .andExpect(status().isBadRequest());
 
@@ -165,11 +158,10 @@ class PaymentMethodsResourceIT {
         paymentMethods.setCardNumber(null);
 
         // Create the PaymentMethods, which fails.
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
 
         restPaymentMethodsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethods))
             )
             .andExpect(status().isBadRequest());
 
@@ -185,11 +177,10 @@ class PaymentMethodsResourceIT {
         paymentMethods.setCardHolderName(null);
 
         // Create the PaymentMethods, which fails.
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
 
         restPaymentMethodsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethods))
             )
             .andExpect(status().isBadRequest());
 
@@ -205,11 +196,10 @@ class PaymentMethodsResourceIT {
         paymentMethods.setExpirationDate(null);
 
         // Create the PaymentMethods, which fails.
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
 
         restPaymentMethodsMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethods))
             )
             .andExpect(status().isBadRequest());
 
@@ -550,13 +540,12 @@ class PaymentMethodsResourceIT {
             .cardNumber(UPDATED_CARD_NUMBER)
             .cardHolderName(UPDATED_CARD_HOLDER_NAME)
             .expirationDate(UPDATED_EXPIRATION_DATE);
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(updatedPaymentMethods);
 
         restPaymentMethodsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, paymentMethodsDTO.getId())
+                put(ENTITY_API_URL_ID, updatedPaymentMethods.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(updatedPaymentMethods))
             )
             .andExpect(status().isOk());
 
@@ -575,15 +564,12 @@ class PaymentMethodsResourceIT {
         int databaseSizeBeforeUpdate = paymentMethodsRepository.findAll().size();
         paymentMethods.setId(count.incrementAndGet());
 
-        // Create the PaymentMethods
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restPaymentMethodsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, paymentMethodsDTO.getId())
+                put(ENTITY_API_URL_ID, paymentMethods.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(paymentMethods))
             )
             .andExpect(status().isBadRequest());
 
@@ -598,15 +584,12 @@ class PaymentMethodsResourceIT {
         int databaseSizeBeforeUpdate = paymentMethodsRepository.findAll().size();
         paymentMethods.setId(count.incrementAndGet());
 
-        // Create the PaymentMethods
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restPaymentMethodsMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(paymentMethods))
             )
             .andExpect(status().isBadRequest());
 
@@ -621,14 +604,9 @@ class PaymentMethodsResourceIT {
         int databaseSizeBeforeUpdate = paymentMethodsRepository.findAll().size();
         paymentMethods.setId(count.incrementAndGet());
 
-        // Create the PaymentMethods
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restPaymentMethodsMockMvc
-            .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
-            )
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(paymentMethods)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the PaymentMethods in the database
@@ -707,15 +685,12 @@ class PaymentMethodsResourceIT {
         int databaseSizeBeforeUpdate = paymentMethodsRepository.findAll().size();
         paymentMethods.setId(count.incrementAndGet());
 
-        // Create the PaymentMethods
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restPaymentMethodsMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, paymentMethodsDTO.getId())
+                patch(ENTITY_API_URL_ID, paymentMethods.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(paymentMethods))
             )
             .andExpect(status().isBadRequest());
 
@@ -730,15 +705,12 @@ class PaymentMethodsResourceIT {
         int databaseSizeBeforeUpdate = paymentMethodsRepository.findAll().size();
         paymentMethods.setId(count.incrementAndGet());
 
-        // Create the PaymentMethods
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restPaymentMethodsMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(paymentMethods))
             )
             .andExpect(status().isBadRequest());
 
@@ -753,15 +725,10 @@ class PaymentMethodsResourceIT {
         int databaseSizeBeforeUpdate = paymentMethodsRepository.findAll().size();
         paymentMethods.setId(count.incrementAndGet());
 
-        // Create the PaymentMethods
-        PaymentMethodsDTO paymentMethodsDTO = paymentMethodsMapper.toDto(paymentMethods);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restPaymentMethodsMockMvc
             .perform(
-                patch(ENTITY_API_URL)
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(paymentMethodsDTO))
+                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(paymentMethods))
             )
             .andExpect(status().isMethodNotAllowed());
 

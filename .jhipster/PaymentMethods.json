@@ -1,7 +1,7 @@
 {
   "applications": "*",
   "changelogDate": "20230217124137",
-  "dto": "mapstruct",
+  "dto": "no",
   "embedded": false,
   "entityTableName": "payment_methods",
   "fields": [

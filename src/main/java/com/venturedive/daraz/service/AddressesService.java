@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.Addresses;
 import com.venturedive.daraz.repository.AddressesRepository;
-import com.venturedive.daraz.service.dto.AddressesDTO;
-import com.venturedive.daraz.service.mapper.AddressesMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,57 @@ public class AddressesService {
 
     private final AddressesRepository addressesRepository;
 
-    private final AddressesMapper addressesMapper;
-
-    public AddressesService(AddressesRepository addressesRepository, AddressesMapper addressesMapper) {
+    public AddressesService(AddressesRepository addressesRepository) {
         this.addressesRepository = addressesRepository;
-        this.addressesMapper = addressesMapper;
     }
 
     /**
      * Save a addresses.
      *
-     * @param addressesDTO the entity to save.
+     * @param addresses the entity to save.
      * @return the persisted entity.
      */
-    public AddressesDTO save(AddressesDTO addressesDTO) {
-        log.debug("Request to save Addresses : {}", addressesDTO);
-        Addresses addresses = addressesMapper.toEntity(addressesDTO);
-        addresses = addressesRepository.save(addresses);
-        return addressesMapper.toDto(addresses);
+    public Addresses save(Addresses addresses) {
+        log.debug("Request to save Addresses : {}", addresses);
+        return addressesRepository.save(addresses);
     }
 
     /**
      * Update a addresses.
      *
-     * @param addressesDTO the entity to save.
+     * @param addresses the entity to save.
      * @return the persisted entity.
      */
-    public AddressesDTO update(AddressesDTO addressesDTO) {
-        log.debug("Request to update Addresses : {}", addressesDTO);
-        Addresses addresses = addressesMapper.toEntity(addressesDTO);
-        addresses = addressesRepository.save(addresses);
-        return addressesMapper.toDto(addresses);
+    public Addresses update(Addresses addresses) {
+        log.debug("Request to update Addresses : {}", addresses);
+        return addressesRepository.save(addresses);
     }
 
     /**
      * Partially update a addresses.
      *
-     * @param addressesDTO the entity to update partially.
+     * @param addresses the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<AddressesDTO> partialUpdate(AddressesDTO addressesDTO) {
-        log.debug("Request to partially update Addresses : {}", addressesDTO);
+    public Optional<Addresses> partialUpdate(Addresses addresses) {
+        log.debug("Request to partially update Addresses : {}", addresses);
 
         return addressesRepository
-            .findById(addressesDTO.getId())
+            .findById(addresses.getId())
             .map(existingAddresses -> {
-                addressesMapper.partialUpdate(existingAddresses, addressesDTO);
+                if (addresses.getStreet() != null) {
+                    existingAddresses.setStreet(addresses.getStreet());
+                }
+                if (addresses.getCity() != null) {
+                    existingAddresses.setCity(addresses.getCity());
+                }
+                if (addresses.getState() != null) {
+                    existingAddresses.setState(addresses.getState());
+                }
 
                 return existingAddresses;
             })
-            .map(addressesRepository::save)
-            .map(addressesMapper::toDto);
+            .map(addressesRepository::save);
     }
 
     /**
@@ -83,9 +81,9 @@ public class AddressesService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<AddressesDTO> findAll(Pageable pageable) {
+    public Page<Addresses> findAll(Pageable pageable) {
         log.debug("Request to get all Addresses");
-        return addressesRepository.findAll(pageable).map(addressesMapper::toDto);
+        return addressesRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +93,9 @@ public class AddressesService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<AddressesDTO> findOne(Long id) {
+    public Optional<Addresses> findOne(Long id) {
         log.debug("Request to get Addresses : {}", id);
-        return addressesRepository.findById(id).map(addressesMapper::toDto);
+        return addressesRepository.findById(id);
     }
 
     /**

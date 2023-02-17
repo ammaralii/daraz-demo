@@ -1,10 +1,10 @@
 package com.venturedive.daraz.web.rest;
 
+import com.venturedive.daraz.domain.ProductDetails;
 import com.venturedive.daraz.repository.ProductDetailsRepository;
 import com.venturedive.daraz.service.ProductDetailsQueryService;
 import com.venturedive.daraz.service.ProductDetailsService;
 import com.venturedive.daraz.service.criteria.ProductDetailsCriteria;
-import com.venturedive.daraz.service.dto.ProductDetailsDTO;
 import com.venturedive.daraz.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,18 +59,18 @@ public class ProductDetailsResource {
     /**
      * {@code POST  /product-details} : Create a new productDetails.
      *
-     * @param productDetailsDTO the productDetailsDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new productDetailsDTO, or with status {@code 400 (Bad Request)} if the productDetails has already an ID.
+     * @param productDetails the productDetails to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new productDetails, or with status {@code 400 (Bad Request)} if the productDetails has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/product-details")
-    public ResponseEntity<ProductDetailsDTO> createProductDetails(@Valid @RequestBody ProductDetailsDTO productDetailsDTO)
+    public ResponseEntity<ProductDetails> createProductDetails(@Valid @RequestBody ProductDetails productDetails)
         throws URISyntaxException {
-        log.debug("REST request to save ProductDetails : {}", productDetailsDTO);
-        if (productDetailsDTO.getId() != null) {
+        log.debug("REST request to save ProductDetails : {}", productDetails);
+        if (productDetails.getId() != null) {
             throw new BadRequestAlertException("A new productDetails cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        ProductDetailsDTO result = productDetailsService.save(productDetailsDTO);
+        ProductDetails result = productDetailsService.save(productDetails);
         return ResponseEntity
             .created(new URI("/api/product-details/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -80,23 +80,23 @@ public class ProductDetailsResource {
     /**
      * {@code PUT  /product-details/:id} : Updates an existing productDetails.
      *
-     * @param id the id of the productDetailsDTO to save.
-     * @param productDetailsDTO the productDetailsDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated productDetailsDTO,
-     * or with status {@code 400 (Bad Request)} if the productDetailsDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the productDetailsDTO couldn't be updated.
+     * @param id the id of the productDetails to save.
+     * @param productDetails the productDetails to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated productDetails,
+     * or with status {@code 400 (Bad Request)} if the productDetails is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the productDetails couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/product-details/{id}")
-    public ResponseEntity<ProductDetailsDTO> updateProductDetails(
+    public ResponseEntity<ProductDetails> updateProductDetails(
         @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody ProductDetailsDTO productDetailsDTO
+        @Valid @RequestBody ProductDetails productDetails
     ) throws URISyntaxException {
-        log.debug("REST request to update ProductDetails : {}, {}", id, productDetailsDTO);
-        if (productDetailsDTO.getId() == null) {
+        log.debug("REST request to update ProductDetails : {}, {}", id, productDetails);
+        if (productDetails.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, productDetailsDTO.getId())) {
+        if (!Objects.equals(id, productDetails.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -104,34 +104,34 @@ public class ProductDetailsResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        ProductDetailsDTO result = productDetailsService.update(productDetailsDTO);
+        ProductDetails result = productDetailsService.update(productDetails);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, productDetailsDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, productDetails.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /product-details/:id} : Partial updates given fields of an existing productDetails, field will ignore if it is null
      *
-     * @param id the id of the productDetailsDTO to save.
-     * @param productDetailsDTO the productDetailsDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated productDetailsDTO,
-     * or with status {@code 400 (Bad Request)} if the productDetailsDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the productDetailsDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the productDetailsDTO couldn't be updated.
+     * @param id the id of the productDetails to save.
+     * @param productDetails the productDetails to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated productDetails,
+     * or with status {@code 400 (Bad Request)} if the productDetails is not valid,
+     * or with status {@code 404 (Not Found)} if the productDetails is not found,
+     * or with status {@code 500 (Internal Server Error)} if the productDetails couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/product-details/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<ProductDetailsDTO> partialUpdateProductDetails(
+    public ResponseEntity<ProductDetails> partialUpdateProductDetails(
         @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody ProductDetailsDTO productDetailsDTO
+        @NotNull @RequestBody ProductDetails productDetails
     ) throws URISyntaxException {
-        log.debug("REST request to partial update ProductDetails partially : {}, {}", id, productDetailsDTO);
-        if (productDetailsDTO.getId() == null) {
+        log.debug("REST request to partial update ProductDetails partially : {}, {}", id, productDetails);
+        if (productDetails.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, productDetailsDTO.getId())) {
+        if (!Objects.equals(id, productDetails.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -139,11 +139,11 @@ public class ProductDetailsResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<ProductDetailsDTO> result = productDetailsService.partialUpdate(productDetailsDTO);
+        Optional<ProductDetails> result = productDetailsService.partialUpdate(productDetails);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, productDetailsDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, productDetails.getId().toString())
         );
     }
 
@@ -155,12 +155,12 @@ public class ProductDetailsResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of productDetails in body.
      */
     @GetMapping("/product-details")
-    public ResponseEntity<List<ProductDetailsDTO>> getAllProductDetails(
+    public ResponseEntity<List<ProductDetails>> getAllProductDetails(
         ProductDetailsCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get ProductDetails by criteria: {}", criteria);
-        Page<ProductDetailsDTO> page = productDetailsQueryService.findByCriteria(criteria, pageable);
+        Page<ProductDetails> page = productDetailsQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -180,20 +180,20 @@ public class ProductDetailsResource {
     /**
      * {@code GET  /product-details/:id} : get the "id" productDetails.
      *
-     * @param id the id of the productDetailsDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the productDetailsDTO, or with status {@code 404 (Not Found)}.
+     * @param id the id of the productDetails to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the productDetails, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/product-details/{id}")
-    public ResponseEntity<ProductDetailsDTO> getProductDetails(@PathVariable Long id) {
+    public ResponseEntity<ProductDetails> getProductDetails(@PathVariable Long id) {
         log.debug("REST request to get ProductDetails : {}", id);
-        Optional<ProductDetailsDTO> productDetailsDTO = productDetailsService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(productDetailsDTO);
+        Optional<ProductDetails> productDetails = productDetailsService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(productDetails);
     }
 
     /**
      * {@code DELETE  /product-details/:id} : delete the "id" productDetails.
      *
-     * @param id the id of the productDetailsDTO to delete.
+     * @param id the id of the productDetails to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/product-details/{id}")

@@ -1,10 +1,10 @@
 package com.venturedive.daraz.web.rest;
 
+import com.venturedive.daraz.domain.Colors;
 import com.venturedive.daraz.repository.ColorsRepository;
 import com.venturedive.daraz.service.ColorsQueryService;
 import com.venturedive.daraz.service.ColorsService;
 import com.venturedive.daraz.service.criteria.ColorsCriteria;
-import com.venturedive.daraz.service.dto.ColorsDTO;
 import com.venturedive.daraz.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -55,17 +55,17 @@ public class ColorsResource {
     /**
      * {@code POST  /colors} : Create a new colors.
      *
-     * @param colorsDTO the colorsDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new colorsDTO, or with status {@code 400 (Bad Request)} if the colors has already an ID.
+     * @param colors the colors to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new colors, or with status {@code 400 (Bad Request)} if the colors has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/colors")
-    public ResponseEntity<ColorsDTO> createColors(@Valid @RequestBody ColorsDTO colorsDTO) throws URISyntaxException {
-        log.debug("REST request to save Colors : {}", colorsDTO);
-        if (colorsDTO.getId() != null) {
+    public ResponseEntity<Colors> createColors(@Valid @RequestBody Colors colors) throws URISyntaxException {
+        log.debug("REST request to save Colors : {}", colors);
+        if (colors.getId() != null) {
             throw new BadRequestAlertException("A new colors cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        ColorsDTO result = colorsService.save(colorsDTO);
+        Colors result = colorsService.save(colors);
         return ResponseEntity
             .created(new URI("/api/colors/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -75,23 +75,23 @@ public class ColorsResource {
     /**
      * {@code PUT  /colors/:id} : Updates an existing colors.
      *
-     * @param id the id of the colorsDTO to save.
-     * @param colorsDTO the colorsDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated colorsDTO,
-     * or with status {@code 400 (Bad Request)} if the colorsDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the colorsDTO couldn't be updated.
+     * @param id the id of the colors to save.
+     * @param colors the colors to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated colors,
+     * or with status {@code 400 (Bad Request)} if the colors is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the colors couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/colors/{id}")
-    public ResponseEntity<ColorsDTO> updateColors(
+    public ResponseEntity<Colors> updateColors(
         @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody ColorsDTO colorsDTO
+        @Valid @RequestBody Colors colors
     ) throws URISyntaxException {
-        log.debug("REST request to update Colors : {}, {}", id, colorsDTO);
-        if (colorsDTO.getId() == null) {
+        log.debug("REST request to update Colors : {}, {}", id, colors);
+        if (colors.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, colorsDTO.getId())) {
+        if (!Objects.equals(id, colors.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -99,34 +99,34 @@ public class ColorsResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        ColorsDTO result = colorsService.update(colorsDTO);
+        Colors result = colorsService.update(colors);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, colorsDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, colors.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /colors/:id} : Partial updates given fields of an existing colors, field will ignore if it is null
      *
-     * @param id the id of the colorsDTO to save.
-     * @param colorsDTO the colorsDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated colorsDTO,
-     * or with status {@code 400 (Bad Request)} if the colorsDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the colorsDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the colorsDTO couldn't be updated.
+     * @param id the id of the colors to save.
+     * @param colors the colors to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated colors,
+     * or with status {@code 400 (Bad Request)} if the colors is not valid,
+     * or with status {@code 404 (Not Found)} if the colors is not found,
+     * or with status {@code 500 (Internal Server Error)} if the colors couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/colors/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<ColorsDTO> partialUpdateColors(
+    public ResponseEntity<Colors> partialUpdateColors(
         @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody ColorsDTO colorsDTO
+        @NotNull @RequestBody Colors colors
     ) throws URISyntaxException {
-        log.debug("REST request to partial update Colors partially : {}, {}", id, colorsDTO);
-        if (colorsDTO.getId() == null) {
+        log.debug("REST request to partial update Colors partially : {}, {}", id, colors);
+        if (colors.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, colorsDTO.getId())) {
+        if (!Objects.equals(id, colors.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -134,11 +134,11 @@ public class ColorsResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<ColorsDTO> result = colorsService.partialUpdate(colorsDTO);
+        Optional<Colors> result = colorsService.partialUpdate(colors);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, colorsDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, colors.getId().toString())
         );
     }
 
@@ -150,12 +150,12 @@ public class ColorsResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of colors in body.
      */
     @GetMapping("/colors")
-    public ResponseEntity<List<ColorsDTO>> getAllColors(
+    public ResponseEntity<List<Colors>> getAllColors(
         ColorsCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get Colors by criteria: {}", criteria);
-        Page<ColorsDTO> page = colorsQueryService.findByCriteria(criteria, pageable);
+        Page<Colors> page = colorsQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -175,20 +175,20 @@ public class ColorsResource {
     /**
      * {@code GET  /colors/:id} : get the "id" colors.
      *
-     * @param id the id of the colorsDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the colorsDTO, or with status {@code 404 (Not Found)}.
+     * @param id the id of the colors to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the colors, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/colors/{id}")
-    public ResponseEntity<ColorsDTO> getColors(@PathVariable Long id) {
+    public ResponseEntity<Colors> getColors(@PathVariable Long id) {
         log.debug("REST request to get Colors : {}", id);
-        Optional<ColorsDTO> colorsDTO = colorsService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(colorsDTO);
+        Optional<Colors> colors = colorsService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(colors);
     }
 
     /**
      * {@code DELETE  /colors/:id} : delete the "id" colors.
      *
-     * @param id the id of the colorsDTO to delete.
+     * @param id the id of the colors to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/colors/{id}")
