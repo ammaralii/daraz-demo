@@ -1,0 +1,35 @@
+{
+  "applications": "*",
+  "changelogDate": "20230217124129",
+  "dto": "mapstruct",
+  "embedded": false,
+  "entityTableName": "cars",
+  "fields": [
+    {
+      "fieldName": "caruid",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": true,
+  "name": "Cars",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "colors",
+      "otherEntityRelationshipName": "car",
+      "ownerSide": false,
+      "relationshipName": "color",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "service": "serviceClass"
+}
