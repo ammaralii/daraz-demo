@@ -148,7 +148,6 @@ service * with serviceClass
 
 paginate * with pagination
 
-dto * with mapstruct
+//dto * with mapstruct
 
 filter *
-

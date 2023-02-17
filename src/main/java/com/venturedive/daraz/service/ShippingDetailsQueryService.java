@@ -4,8 +4,6 @@ import com.venturedive.daraz.domain.*; // for static metamodels
 import com.venturedive.daraz.domain.ShippingDetails;
 import com.venturedive.daraz.repository.ShippingDetailsRepository;
 import com.venturedive.daraz.service.criteria.ShippingDetailsCriteria;
-import com.venturedive.daraz.service.dto.ShippingDetailsDTO;
-import com.venturedive.daraz.service.mapper.ShippingDetailsMapper;
 import java.util.List;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
@@ -21,7 +19,7 @@ import tech.jhipster.service.QueryService;
  * Service for executing complex queries for {@link ShippingDetails} entities in the database.
  * The main input is a {@link ShippingDetailsCriteria} which gets converted to {@link Specification},
  * in a way that all the filters must apply.
- * It returns a {@link List} of {@link ShippingDetailsDTO} or a {@link Page} of {@link ShippingDetailsDTO} which fulfills the criteria.
+ * It returns a {@link List} of {@link ShippingDetails} or a {@link Page} of {@link ShippingDetails} which fulfills the criteria.
  */
 @Service
 @Transactional(readOnly = true)
@@ -31,36 +29,33 @@ public class ShippingDetailsQueryService extends QueryService<ShippingDetails> {
 
     private final ShippingDetailsRepository shippingDetailsRepository;
 
-    private final ShippingDetailsMapper shippingDetailsMapper;
-
-    public ShippingDetailsQueryService(ShippingDetailsRepository shippingDetailsRepository, ShippingDetailsMapper shippingDetailsMapper) {
+    public ShippingDetailsQueryService(ShippingDetailsRepository shippingDetailsRepository) {
         this.shippingDetailsRepository = shippingDetailsRepository;
-        this.shippingDetailsMapper = shippingDetailsMapper;
     }
 
     /**
-     * Return a {@link List} of {@link ShippingDetailsDTO} which matches the criteria from the database.
+     * Return a {@link List} of {@link ShippingDetails} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public List<ShippingDetailsDTO> findByCriteria(ShippingDetailsCriteria criteria) {
+    public List<ShippingDetails> findByCriteria(ShippingDetailsCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
         final Specification<ShippingDetails> specification = createSpecification(criteria);
-        return shippingDetailsMapper.toDto(shippingDetailsRepository.findAll(specification));
+        return shippingDetailsRepository.findAll(specification);
     }
 
     /**
-     * Return a {@link Page} of {@link ShippingDetailsDTO} which matches the criteria from the database.
+     * Return a {@link Page} of {@link ShippingDetails} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @param page The page, which should be returned.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public Page<ShippingDetailsDTO> findByCriteria(ShippingDetailsCriteria criteria, Pageable page) {
+    public Page<ShippingDetails> findByCriteria(ShippingDetailsCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<ShippingDetails> specification = createSpecification(criteria);
-        return shippingDetailsRepository.findAll(specification, page).map(shippingDetailsMapper::toDto);
+        return shippingDetailsRepository.findAll(specification, page);
     }
 
     /**

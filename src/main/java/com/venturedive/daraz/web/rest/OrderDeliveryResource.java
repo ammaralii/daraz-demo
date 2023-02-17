@@ -1,10 +1,10 @@
 package com.venturedive.daraz.web.rest;
 
+import com.venturedive.daraz.domain.OrderDelivery;
 import com.venturedive.daraz.repository.OrderDeliveryRepository;
 import com.venturedive.daraz.service.OrderDeliveryQueryService;
 import com.venturedive.daraz.service.OrderDeliveryService;
 import com.venturedive.daraz.service.criteria.OrderDeliveryCriteria;
-import com.venturedive.daraz.service.dto.OrderDeliveryDTO;
 import com.venturedive.daraz.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,18 +59,17 @@ public class OrderDeliveryResource {
     /**
      * {@code POST  /order-deliveries} : Create a new orderDelivery.
      *
-     * @param orderDeliveryDTO the orderDeliveryDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new orderDeliveryDTO, or with status {@code 400 (Bad Request)} if the orderDelivery has already an ID.
+     * @param orderDelivery the orderDelivery to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new orderDelivery, or with status {@code 400 (Bad Request)} if the orderDelivery has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/order-deliveries")
-    public ResponseEntity<OrderDeliveryDTO> createOrderDelivery(@Valid @RequestBody OrderDeliveryDTO orderDeliveryDTO)
-        throws URISyntaxException {
-        log.debug("REST request to save OrderDelivery : {}", orderDeliveryDTO);
-        if (orderDeliveryDTO.getId() != null) {
+    public ResponseEntity<OrderDelivery> createOrderDelivery(@Valid @RequestBody OrderDelivery orderDelivery) throws URISyntaxException {
+        log.debug("REST request to save OrderDelivery : {}", orderDelivery);
+        if (orderDelivery.getId() != null) {
             throw new BadRequestAlertException("A new orderDelivery cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        OrderDeliveryDTO result = orderDeliveryService.save(orderDeliveryDTO);
+        OrderDelivery result = orderDeliveryService.save(orderDelivery);
         return ResponseEntity
             .created(new URI("/api/order-deliveries/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -80,23 +79,23 @@ public class OrderDeliveryResource {
     /**
      * {@code PUT  /order-deliveries/:id} : Updates an existing orderDelivery.
      *
-     * @param id the id of the orderDeliveryDTO to save.
-     * @param orderDeliveryDTO the orderDeliveryDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated orderDeliveryDTO,
-     * or with status {@code 400 (Bad Request)} if the orderDeliveryDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the orderDeliveryDTO couldn't be updated.
+     * @param id the id of the orderDelivery to save.
+     * @param orderDelivery the orderDelivery to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated orderDelivery,
+     * or with status {@code 400 (Bad Request)} if the orderDelivery is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the orderDelivery couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/order-deliveries/{id}")
-    public ResponseEntity<OrderDeliveryDTO> updateOrderDelivery(
+    public ResponseEntity<OrderDelivery> updateOrderDelivery(
         @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody OrderDeliveryDTO orderDeliveryDTO
+        @Valid @RequestBody OrderDelivery orderDelivery
     ) throws URISyntaxException {
-        log.debug("REST request to update OrderDelivery : {}, {}", id, orderDeliveryDTO);
-        if (orderDeliveryDTO.getId() == null) {
+        log.debug("REST request to update OrderDelivery : {}, {}", id, orderDelivery);
+        if (orderDelivery.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, orderDeliveryDTO.getId())) {
+        if (!Objects.equals(id, orderDelivery.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -104,34 +103,34 @@ public class OrderDeliveryResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        OrderDeliveryDTO result = orderDeliveryService.update(orderDeliveryDTO);
+        OrderDelivery result = orderDeliveryService.update(orderDelivery);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, orderDeliveryDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, orderDelivery.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /order-deliveries/:id} : Partial updates given fields of an existing orderDelivery, field will ignore if it is null
      *
-     * @param id the id of the orderDeliveryDTO to save.
-     * @param orderDeliveryDTO the orderDeliveryDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated orderDeliveryDTO,
-     * or with status {@code 400 (Bad Request)} if the orderDeliveryDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the orderDeliveryDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the orderDeliveryDTO couldn't be updated.
+     * @param id the id of the orderDelivery to save.
+     * @param orderDelivery the orderDelivery to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated orderDelivery,
+     * or with status {@code 400 (Bad Request)} if the orderDelivery is not valid,
+     * or with status {@code 404 (Not Found)} if the orderDelivery is not found,
+     * or with status {@code 500 (Internal Server Error)} if the orderDelivery couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/order-deliveries/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<OrderDeliveryDTO> partialUpdateOrderDelivery(
+    public ResponseEntity<OrderDelivery> partialUpdateOrderDelivery(
         @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody OrderDeliveryDTO orderDeliveryDTO
+        @NotNull @RequestBody OrderDelivery orderDelivery
     ) throws URISyntaxException {
-        log.debug("REST request to partial update OrderDelivery partially : {}, {}", id, orderDeliveryDTO);
-        if (orderDeliveryDTO.getId() == null) {
+        log.debug("REST request to partial update OrderDelivery partially : {}, {}", id, orderDelivery);
+        if (orderDelivery.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, orderDeliveryDTO.getId())) {
+        if (!Objects.equals(id, orderDelivery.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -139,11 +138,11 @@ public class OrderDeliveryResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<OrderDeliveryDTO> result = orderDeliveryService.partialUpdate(orderDeliveryDTO);
+        Optional<OrderDelivery> result = orderDeliveryService.partialUpdate(orderDelivery);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, orderDeliveryDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, orderDelivery.getId().toString())
         );
     }
 
@@ -155,12 +154,12 @@ public class OrderDeliveryResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of orderDeliveries in body.
      */
     @GetMapping("/order-deliveries")
-    public ResponseEntity<List<OrderDeliveryDTO>> getAllOrderDeliveries(
+    public ResponseEntity<List<OrderDelivery>> getAllOrderDeliveries(
         OrderDeliveryCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get OrderDeliveries by criteria: {}", criteria);
-        Page<OrderDeliveryDTO> page = orderDeliveryQueryService.findByCriteria(criteria, pageable);
+        Page<OrderDelivery> page = orderDeliveryQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -180,20 +179,20 @@ public class OrderDeliveryResource {
     /**
      * {@code GET  /order-deliveries/:id} : get the "id" orderDelivery.
      *
-     * @param id the id of the orderDeliveryDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the orderDeliveryDTO, or with status {@code 404 (Not Found)}.
+     * @param id the id of the orderDelivery to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the orderDelivery, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/order-deliveries/{id}")
-    public ResponseEntity<OrderDeliveryDTO> getOrderDelivery(@PathVariable Long id) {
+    public ResponseEntity<OrderDelivery> getOrderDelivery(@PathVariable Long id) {
         log.debug("REST request to get OrderDelivery : {}", id);
-        Optional<OrderDeliveryDTO> orderDeliveryDTO = orderDeliveryService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(orderDeliveryDTO);
+        Optional<OrderDelivery> orderDelivery = orderDeliveryService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(orderDelivery);
     }
 
     /**
      * {@code DELETE  /order-deliveries/:id} : delete the "id" orderDelivery.
      *
-     * @param id the id of the orderDeliveryDTO to delete.
+     * @param id the id of the orderDelivery to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/order-deliveries/{id}")

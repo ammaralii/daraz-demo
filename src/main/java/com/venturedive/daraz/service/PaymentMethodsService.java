@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.PaymentMethods;
 import com.venturedive.daraz.repository.PaymentMethodsRepository;
-import com.venturedive.daraz.service.dto.PaymentMethodsDTO;
-import com.venturedive.daraz.service.mapper.PaymentMethodsMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,57 @@ public class PaymentMethodsService {
 
     private final PaymentMethodsRepository paymentMethodsRepository;
 
-    private final PaymentMethodsMapper paymentMethodsMapper;
-
-    public PaymentMethodsService(PaymentMethodsRepository paymentMethodsRepository, PaymentMethodsMapper paymentMethodsMapper) {
+    public PaymentMethodsService(PaymentMethodsRepository paymentMethodsRepository) {
         this.paymentMethodsRepository = paymentMethodsRepository;
-        this.paymentMethodsMapper = paymentMethodsMapper;
     }
 
     /**
      * Save a paymentMethods.
      *
-     * @param paymentMethodsDTO the entity to save.
+     * @param paymentMethods the entity to save.
      * @return the persisted entity.
      */
-    public PaymentMethodsDTO save(PaymentMethodsDTO paymentMethodsDTO) {
-        log.debug("Request to save PaymentMethods : {}", paymentMethodsDTO);
-        PaymentMethods paymentMethods = paymentMethodsMapper.toEntity(paymentMethodsDTO);
-        paymentMethods = paymentMethodsRepository.save(paymentMethods);
-        return paymentMethodsMapper.toDto(paymentMethods);
+    public PaymentMethods save(PaymentMethods paymentMethods) {
+        log.debug("Request to save PaymentMethods : {}", paymentMethods);
+        return paymentMethodsRepository.save(paymentMethods);
     }
 
     /**
      * Update a paymentMethods.
      *
-     * @param paymentMethodsDTO the entity to save.
+     * @param paymentMethods the entity to save.
      * @return the persisted entity.
      */
-    public PaymentMethodsDTO update(PaymentMethodsDTO paymentMethodsDTO) {
-        log.debug("Request to update PaymentMethods : {}", paymentMethodsDTO);
-        PaymentMethods paymentMethods = paymentMethodsMapper.toEntity(paymentMethodsDTO);
-        paymentMethods = paymentMethodsRepository.save(paymentMethods);
-        return paymentMethodsMapper.toDto(paymentMethods);
+    public PaymentMethods update(PaymentMethods paymentMethods) {
+        log.debug("Request to update PaymentMethods : {}", paymentMethods);
+        return paymentMethodsRepository.save(paymentMethods);
     }
 
     /**
      * Partially update a paymentMethods.
      *
-     * @param paymentMethodsDTO the entity to update partially.
+     * @param paymentMethods the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<PaymentMethodsDTO> partialUpdate(PaymentMethodsDTO paymentMethodsDTO) {
-        log.debug("Request to partially update PaymentMethods : {}", paymentMethodsDTO);
+    public Optional<PaymentMethods> partialUpdate(PaymentMethods paymentMethods) {
+        log.debug("Request to partially update PaymentMethods : {}", paymentMethods);
 
         return paymentMethodsRepository
-            .findById(paymentMethodsDTO.getId())
+            .findById(paymentMethods.getId())
             .map(existingPaymentMethods -> {
-                paymentMethodsMapper.partialUpdate(existingPaymentMethods, paymentMethodsDTO);
+                if (paymentMethods.getCardNumber() != null) {
+                    existingPaymentMethods.setCardNumber(paymentMethods.getCardNumber());
+                }
+                if (paymentMethods.getCardHolderName() != null) {
+                    existingPaymentMethods.setCardHolderName(paymentMethods.getCardHolderName());
+                }
+                if (paymentMethods.getExpirationDate() != null) {
+                    existingPaymentMethods.setExpirationDate(paymentMethods.getExpirationDate());
+                }
 
                 return existingPaymentMethods;
             })
-            .map(paymentMethodsRepository::save)
-            .map(paymentMethodsMapper::toDto);
+            .map(paymentMethodsRepository::save);
     }
 
     /**
@@ -83,9 +81,9 @@ public class PaymentMethodsService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<PaymentMethodsDTO> findAll(Pageable pageable) {
+    public Page<PaymentMethods> findAll(Pageable pageable) {
         log.debug("Request to get all PaymentMethods");
-        return paymentMethodsRepository.findAll(pageable).map(paymentMethodsMapper::toDto);
+        return paymentMethodsRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +93,9 @@ public class PaymentMethodsService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<PaymentMethodsDTO> findOne(Long id) {
+    public Optional<PaymentMethods> findOne(Long id) {
         log.debug("Request to get PaymentMethods : {}", id);
-        return paymentMethodsRepository.findById(id).map(paymentMethodsMapper::toDto);
+        return paymentMethodsRepository.findById(id);
     }
 
     /**

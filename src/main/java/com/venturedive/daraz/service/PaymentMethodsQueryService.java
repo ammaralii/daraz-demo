@@ -4,8 +4,6 @@ import com.venturedive.daraz.domain.*; // for static metamodels
 import com.venturedive.daraz.domain.PaymentMethods;
 import com.venturedive.daraz.repository.PaymentMethodsRepository;
 import com.venturedive.daraz.service.criteria.PaymentMethodsCriteria;
-import com.venturedive.daraz.service.dto.PaymentMethodsDTO;
-import com.venturedive.daraz.service.mapper.PaymentMethodsMapper;
 import java.util.List;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
@@ -21,7 +19,7 @@ import tech.jhipster.service.QueryService;
  * Service for executing complex queries for {@link PaymentMethods} entities in the database.
  * The main input is a {@link PaymentMethodsCriteria} which gets converted to {@link Specification},
  * in a way that all the filters must apply.
- * It returns a {@link List} of {@link PaymentMethodsDTO} or a {@link Page} of {@link PaymentMethodsDTO} which fulfills the criteria.
+ * It returns a {@link List} of {@link PaymentMethods} or a {@link Page} of {@link PaymentMethods} which fulfills the criteria.
  */
 @Service
 @Transactional(readOnly = true)
@@ -31,36 +29,33 @@ public class PaymentMethodsQueryService extends QueryService<PaymentMethods> {
 
     private final PaymentMethodsRepository paymentMethodsRepository;
 
-    private final PaymentMethodsMapper paymentMethodsMapper;
-
-    public PaymentMethodsQueryService(PaymentMethodsRepository paymentMethodsRepository, PaymentMethodsMapper paymentMethodsMapper) {
+    public PaymentMethodsQueryService(PaymentMethodsRepository paymentMethodsRepository) {
         this.paymentMethodsRepository = paymentMethodsRepository;
-        this.paymentMethodsMapper = paymentMethodsMapper;
     }
 
     /**
-     * Return a {@link List} of {@link PaymentMethodsDTO} which matches the criteria from the database.
+     * Return a {@link List} of {@link PaymentMethods} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public List<PaymentMethodsDTO> findByCriteria(PaymentMethodsCriteria criteria) {
+    public List<PaymentMethods> findByCriteria(PaymentMethodsCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
         final Specification<PaymentMethods> specification = createSpecification(criteria);
-        return paymentMethodsMapper.toDto(paymentMethodsRepository.findAll(specification));
+        return paymentMethodsRepository.findAll(specification);
     }
 
     /**
-     * Return a {@link Page} of {@link PaymentMethodsDTO} which matches the criteria from the database.
+     * Return a {@link Page} of {@link PaymentMethods} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @param page The page, which should be returned.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public Page<PaymentMethodsDTO> findByCriteria(PaymentMethodsCriteria criteria, Pageable page) {
+    public Page<PaymentMethods> findByCriteria(PaymentMethodsCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<PaymentMethods> specification = createSpecification(criteria);
-        return paymentMethodsRepository.findAll(specification, page).map(paymentMethodsMapper::toDto);
+        return paymentMethodsRepository.findAll(specification, page);
     }
 
     /**

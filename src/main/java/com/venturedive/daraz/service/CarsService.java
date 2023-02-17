@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.Cars;
 import com.venturedive.daraz.repository.CarsRepository;
-import com.venturedive.daraz.service.dto.CarsDTO;
-import com.venturedive.daraz.service.mapper.CarsMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,54 @@ public class CarsService {
 
     private final CarsRepository carsRepository;
 
-    private final CarsMapper carsMapper;
-
-    public CarsService(CarsRepository carsRepository, CarsMapper carsMapper) {
+    public CarsService(CarsRepository carsRepository) {
         this.carsRepository = carsRepository;
-        this.carsMapper = carsMapper;
     }
 
     /**
      * Save a cars.
      *
-     * @param carsDTO the entity to save.
+     * @param cars the entity to save.
      * @return the persisted entity.
      */
-    public CarsDTO save(CarsDTO carsDTO) {
-        log.debug("Request to save Cars : {}", carsDTO);
-        Cars cars = carsMapper.toEntity(carsDTO);
-        cars = carsRepository.save(cars);
-        return carsMapper.toDto(cars);
+    public Cars save(Cars cars) {
+        log.debug("Request to save Cars : {}", cars);
+        return carsRepository.save(cars);
     }
 
     /**
      * Update a cars.
      *
-     * @param carsDTO the entity to save.
+     * @param cars the entity to save.
      * @return the persisted entity.
      */
-    public CarsDTO update(CarsDTO carsDTO) {
-        log.debug("Request to update Cars : {}", carsDTO);
-        Cars cars = carsMapper.toEntity(carsDTO);
-        cars = carsRepository.save(cars);
-        return carsMapper.toDto(cars);
+    public Cars update(Cars cars) {
+        log.debug("Request to update Cars : {}", cars);
+        return carsRepository.save(cars);
     }
 
     /**
      * Partially update a cars.
      *
-     * @param carsDTO the entity to update partially.
+     * @param cars the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<CarsDTO> partialUpdate(CarsDTO carsDTO) {
-        log.debug("Request to partially update Cars : {}", carsDTO);
+    public Optional<Cars> partialUpdate(Cars cars) {
+        log.debug("Request to partially update Cars : {}", cars);
 
         return carsRepository
-            .findById(carsDTO.getId())
+            .findById(cars.getId())
             .map(existingCars -> {
-                carsMapper.partialUpdate(existingCars, carsDTO);
+                if (cars.getCaruid() != null) {
+                    existingCars.setCaruid(cars.getCaruid());
+                }
+                if (cars.getName() != null) {
+                    existingCars.setName(cars.getName());
+                }
 
                 return existingCars;
             })
-            .map(carsRepository::save)
-            .map(carsMapper::toDto);
+            .map(carsRepository::save);
     }
 
     /**
@@ -83,9 +78,9 @@ public class CarsService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<CarsDTO> findAll(Pageable pageable) {
+    public Page<Cars> findAll(Pageable pageable) {
         log.debug("Request to get all Cars");
-        return carsRepository.findAll(pageable).map(carsMapper::toDto);
+        return carsRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +90,9 @@ public class CarsService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<CarsDTO> findOne(Long id) {
+    public Optional<Cars> findOne(Long id) {
         log.debug("Request to get Cars : {}", id);
-        return carsRepository.findById(id).map(carsMapper::toDto);
+        return carsRepository.findById(id);
     }
 
     /**

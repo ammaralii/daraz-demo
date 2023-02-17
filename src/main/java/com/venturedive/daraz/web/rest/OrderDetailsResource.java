@@ -1,10 +1,10 @@
 package com.venturedive.daraz.web.rest;
 
+import com.venturedive.daraz.domain.OrderDetails;
 import com.venturedive.daraz.repository.OrderDetailsRepository;
 import com.venturedive.daraz.service.OrderDetailsQueryService;
 import com.venturedive.daraz.service.OrderDetailsService;
 import com.venturedive.daraz.service.criteria.OrderDetailsCriteria;
-import com.venturedive.daraz.service.dto.OrderDetailsDTO;
 import com.venturedive.daraz.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,18 +59,17 @@ public class OrderDetailsResource {
     /**
      * {@code POST  /order-details} : Create a new orderDetails.
      *
-     * @param orderDetailsDTO the orderDetailsDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new orderDetailsDTO, or with status {@code 400 (Bad Request)} if the orderDetails has already an ID.
+     * @param orderDetails the orderDetails to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new orderDetails, or with status {@code 400 (Bad Request)} if the orderDetails has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/order-details")
-    public ResponseEntity<OrderDetailsDTO> createOrderDetails(@Valid @RequestBody OrderDetailsDTO orderDetailsDTO)
-        throws URISyntaxException {
-        log.debug("REST request to save OrderDetails : {}", orderDetailsDTO);
-        if (orderDetailsDTO.getId() != null) {
+    public ResponseEntity<OrderDetails> createOrderDetails(@Valid @RequestBody OrderDetails orderDetails) throws URISyntaxException {
+        log.debug("REST request to save OrderDetails : {}", orderDetails);
+        if (orderDetails.getId() != null) {
             throw new BadRequestAlertException("A new orderDetails cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        OrderDetailsDTO result = orderDetailsService.save(orderDetailsDTO);
+        OrderDetails result = orderDetailsService.save(orderDetails);
         return ResponseEntity
             .created(new URI("/api/order-details/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -80,23 +79,23 @@ public class OrderDetailsResource {
     /**
      * {@code PUT  /order-details/:id} : Updates an existing orderDetails.
      *
-     * @param id the id of the orderDetailsDTO to save.
-     * @param orderDetailsDTO the orderDetailsDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated orderDetailsDTO,
-     * or with status {@code 400 (Bad Request)} if the orderDetailsDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the orderDetailsDTO couldn't be updated.
+     * @param id the id of the orderDetails to save.
+     * @param orderDetails the orderDetails to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated orderDetails,
+     * or with status {@code 400 (Bad Request)} if the orderDetails is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the orderDetails couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/order-details/{id}")
-    public ResponseEntity<OrderDetailsDTO> updateOrderDetails(
+    public ResponseEntity<OrderDetails> updateOrderDetails(
         @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody OrderDetailsDTO orderDetailsDTO
+        @Valid @RequestBody OrderDetails orderDetails
     ) throws URISyntaxException {
-        log.debug("REST request to update OrderDetails : {}, {}", id, orderDetailsDTO);
-        if (orderDetailsDTO.getId() == null) {
+        log.debug("REST request to update OrderDetails : {}, {}", id, orderDetails);
+        if (orderDetails.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, orderDetailsDTO.getId())) {
+        if (!Objects.equals(id, orderDetails.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -104,34 +103,34 @@ public class OrderDetailsResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        OrderDetailsDTO result = orderDetailsService.update(orderDetailsDTO);
+        OrderDetails result = orderDetailsService.update(orderDetails);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, orderDetailsDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, orderDetails.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /order-details/:id} : Partial updates given fields of an existing orderDetails, field will ignore if it is null
      *
-     * @param id the id of the orderDetailsDTO to save.
-     * @param orderDetailsDTO the orderDetailsDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated orderDetailsDTO,
-     * or with status {@code 400 (Bad Request)} if the orderDetailsDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the orderDetailsDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the orderDetailsDTO couldn't be updated.
+     * @param id the id of the orderDetails to save.
+     * @param orderDetails the orderDetails to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated orderDetails,
+     * or with status {@code 400 (Bad Request)} if the orderDetails is not valid,
+     * or with status {@code 404 (Not Found)} if the orderDetails is not found,
+     * or with status {@code 500 (Internal Server Error)} if the orderDetails couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/order-details/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<OrderDetailsDTO> partialUpdateOrderDetails(
+    public ResponseEntity<OrderDetails> partialUpdateOrderDetails(
         @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody OrderDetailsDTO orderDetailsDTO
+        @NotNull @RequestBody OrderDetails orderDetails
     ) throws URISyntaxException {
-        log.debug("REST request to partial update OrderDetails partially : {}, {}", id, orderDetailsDTO);
-        if (orderDetailsDTO.getId() == null) {
+        log.debug("REST request to partial update OrderDetails partially : {}, {}", id, orderDetails);
+        if (orderDetails.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, orderDetailsDTO.getId())) {
+        if (!Objects.equals(id, orderDetails.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -139,11 +138,11 @@ public class OrderDetailsResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<OrderDetailsDTO> result = orderDetailsService.partialUpdate(orderDetailsDTO);
+        Optional<OrderDetails> result = orderDetailsService.partialUpdate(orderDetails);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, orderDetailsDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, orderDetails.getId().toString())
         );
     }
 
@@ -155,12 +154,12 @@ public class OrderDetailsResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of orderDetails in body.
      */
     @GetMapping("/order-details")
-    public ResponseEntity<List<OrderDetailsDTO>> getAllOrderDetails(
+    public ResponseEntity<List<OrderDetails>> getAllOrderDetails(
         OrderDetailsCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get OrderDetails by criteria: {}", criteria);
-        Page<OrderDetailsDTO> page = orderDetailsQueryService.findByCriteria(criteria, pageable);
+        Page<OrderDetails> page = orderDetailsQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -180,20 +179,20 @@ public class OrderDetailsResource {
     /**
      * {@code GET  /order-details/:id} : get the "id" orderDetails.
      *
-     * @param id the id of the orderDetailsDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the orderDetailsDTO, or with status {@code 404 (Not Found)}.
+     * @param id the id of the orderDetails to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the orderDetails, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/order-details/{id}")
-    public ResponseEntity<OrderDetailsDTO> getOrderDetails(@PathVariable Long id) {
+    public ResponseEntity<OrderDetails> getOrderDetails(@PathVariable Long id) {
         log.debug("REST request to get OrderDetails : {}", id);
-        Optional<OrderDetailsDTO> orderDetailsDTO = orderDetailsService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(orderDetailsDTO);
+        Optional<OrderDetails> orderDetails = orderDetailsService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(orderDetails);
     }
 
     /**
      * {@code DELETE  /order-details/:id} : delete the "id" orderDetails.
      *
-     * @param id the id of the orderDetailsDTO to delete.
+     * @param id the id of the orderDetails to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/order-details/{id}")

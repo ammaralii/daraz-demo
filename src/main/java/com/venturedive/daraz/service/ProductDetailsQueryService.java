@@ -4,8 +4,6 @@ import com.venturedive.daraz.domain.*; // for static metamodels
 import com.venturedive.daraz.domain.ProductDetails;
 import com.venturedive.daraz.repository.ProductDetailsRepository;
 import com.venturedive.daraz.service.criteria.ProductDetailsCriteria;
-import com.venturedive.daraz.service.dto.ProductDetailsDTO;
-import com.venturedive.daraz.service.mapper.ProductDetailsMapper;
 import java.util.List;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
@@ -21,7 +19,7 @@ import tech.jhipster.service.QueryService;
  * Service for executing complex queries for {@link ProductDetails} entities in the database.
  * The main input is a {@link ProductDetailsCriteria} which gets converted to {@link Specification},
  * in a way that all the filters must apply.
- * It returns a {@link List} of {@link ProductDetailsDTO} or a {@link Page} of {@link ProductDetailsDTO} which fulfills the criteria.
+ * It returns a {@link List} of {@link ProductDetails} or a {@link Page} of {@link ProductDetails} which fulfills the criteria.
  */
 @Service
 @Transactional(readOnly = true)
@@ -31,36 +29,33 @@ public class ProductDetailsQueryService extends QueryService<ProductDetails> {
 
     private final ProductDetailsRepository productDetailsRepository;
 
-    private final ProductDetailsMapper productDetailsMapper;
-
-    public ProductDetailsQueryService(ProductDetailsRepository productDetailsRepository, ProductDetailsMapper productDetailsMapper) {
+    public ProductDetailsQueryService(ProductDetailsRepository productDetailsRepository) {
         this.productDetailsRepository = productDetailsRepository;
-        this.productDetailsMapper = productDetailsMapper;
     }
 
     /**
-     * Return a {@link List} of {@link ProductDetailsDTO} which matches the criteria from the database.
+     * Return a {@link List} of {@link ProductDetails} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public List<ProductDetailsDTO> findByCriteria(ProductDetailsCriteria criteria) {
+    public List<ProductDetails> findByCriteria(ProductDetailsCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
         final Specification<ProductDetails> specification = createSpecification(criteria);
-        return productDetailsMapper.toDto(productDetailsRepository.findAll(specification));
+        return productDetailsRepository.findAll(specification);
     }
 
     /**
-     * Return a {@link Page} of {@link ProductDetailsDTO} which matches the criteria from the database.
+     * Return a {@link Page} of {@link ProductDetails} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @param page The page, which should be returned.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public Page<ProductDetailsDTO> findByCriteria(ProductDetailsCriteria criteria, Pageable page) {
+    public Page<ProductDetails> findByCriteria(ProductDetailsCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<ProductDetails> specification = createSpecification(criteria);
-        return productDetailsRepository.findAll(specification, page).map(productDetailsMapper::toDto);
+        return productDetailsRepository.findAll(specification, page);
     }
 
     /**

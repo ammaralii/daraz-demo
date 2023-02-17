@@ -4,8 +4,6 @@ import com.venturedive.daraz.domain.*; // for static metamodels
 import com.venturedive.daraz.domain.Products;
 import com.venturedive.daraz.repository.ProductsRepository;
 import com.venturedive.daraz.service.criteria.ProductsCriteria;
-import com.venturedive.daraz.service.dto.ProductsDTO;
-import com.venturedive.daraz.service.mapper.ProductsMapper;
 import java.util.List;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
@@ -21,7 +19,7 @@ import tech.jhipster.service.QueryService;
  * Service for executing complex queries for {@link Products} entities in the database.
  * The main input is a {@link ProductsCriteria} which gets converted to {@link Specification},
  * in a way that all the filters must apply.
- * It returns a {@link List} of {@link ProductsDTO} or a {@link Page} of {@link ProductsDTO} which fulfills the criteria.
+ * It returns a {@link List} of {@link Products} or a {@link Page} of {@link Products} which fulfills the criteria.
  */
 @Service
 @Transactional(readOnly = true)
@@ -31,36 +29,33 @@ public class ProductsQueryService extends QueryService<Products> {
 
     private final ProductsRepository productsRepository;
 
-    private final ProductsMapper productsMapper;
-
-    public ProductsQueryService(ProductsRepository productsRepository, ProductsMapper productsMapper) {
+    public ProductsQueryService(ProductsRepository productsRepository) {
         this.productsRepository = productsRepository;
-        this.productsMapper = productsMapper;
     }
 
     /**
-     * Return a {@link List} of {@link ProductsDTO} which matches the criteria from the database.
+     * Return a {@link List} of {@link Products} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public List<ProductsDTO> findByCriteria(ProductsCriteria criteria) {
+    public List<Products> findByCriteria(ProductsCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
         final Specification<Products> specification = createSpecification(criteria);
-        return productsMapper.toDto(productsRepository.findAll(specification));
+        return productsRepository.findAll(specification);
     }
 
     /**
-     * Return a {@link Page} of {@link ProductsDTO} which matches the criteria from the database.
+     * Return a {@link Page} of {@link Products} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @param page The page, which should be returned.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public Page<ProductsDTO> findByCriteria(ProductsCriteria criteria, Pageable page) {
+    public Page<Products> findByCriteria(ProductsCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<Products> specification = createSpecification(criteria);
-        return productsRepository.findAll(specification, page).map(productsMapper::toDto);
+        return productsRepository.findAll(specification, page);
     }
 
     /**

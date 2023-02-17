@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.Customers;
 import com.venturedive.daraz.repository.CustomersRepository;
-import com.venturedive.daraz.service.dto.CustomersDTO;
-import com.venturedive.daraz.service.mapper.CustomersMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,57 @@ public class CustomersService {
 
     private final CustomersRepository customersRepository;
 
-    private final CustomersMapper customersMapper;
-
-    public CustomersService(CustomersRepository customersRepository, CustomersMapper customersMapper) {
+    public CustomersService(CustomersRepository customersRepository) {
         this.customersRepository = customersRepository;
-        this.customersMapper = customersMapper;
     }
 
     /**
      * Save a customers.
      *
-     * @param customersDTO the entity to save.
+     * @param customers the entity to save.
      * @return the persisted entity.
      */
-    public CustomersDTO save(CustomersDTO customersDTO) {
-        log.debug("Request to save Customers : {}", customersDTO);
-        Customers customers = customersMapper.toEntity(customersDTO);
-        customers = customersRepository.save(customers);
-        return customersMapper.toDto(customers);
+    public Customers save(Customers customers) {
+        log.debug("Request to save Customers : {}", customers);
+        return customersRepository.save(customers);
     }
 
     /**
      * Update a customers.
      *
-     * @param customersDTO the entity to save.
+     * @param customers the entity to save.
      * @return the persisted entity.
      */
-    public CustomersDTO update(CustomersDTO customersDTO) {
-        log.debug("Request to update Customers : {}", customersDTO);
-        Customers customers = customersMapper.toEntity(customersDTO);
-        customers = customersRepository.save(customers);
-        return customersMapper.toDto(customers);
+    public Customers update(Customers customers) {
+        log.debug("Request to update Customers : {}", customers);
+        return customersRepository.save(customers);
     }
 
     /**
      * Partially update a customers.
      *
-     * @param customersDTO the entity to update partially.
+     * @param customers the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<CustomersDTO> partialUpdate(CustomersDTO customersDTO) {
-        log.debug("Request to partially update Customers : {}", customersDTO);
+    public Optional<Customers> partialUpdate(Customers customers) {
+        log.debug("Request to partially update Customers : {}", customers);
 
         return customersRepository
-            .findById(customersDTO.getId())
+            .findById(customers.getId())
             .map(existingCustomers -> {
-                customersMapper.partialUpdate(existingCustomers, customersDTO);
+                if (customers.getFullName() != null) {
+                    existingCustomers.setFullName(customers.getFullName());
+                }
+                if (customers.getEmail() != null) {
+                    existingCustomers.setEmail(customers.getEmail());
+                }
+                if (customers.getPhone() != null) {
+                    existingCustomers.setPhone(customers.getPhone());
+                }
 
                 return existingCustomers;
             })
-            .map(customersRepository::save)
-            .map(customersMapper::toDto);
+            .map(customersRepository::save);
     }
 
     /**
@@ -83,9 +81,9 @@ public class CustomersService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<CustomersDTO> findAll(Pageable pageable) {
+    public Page<Customers> findAll(Pageable pageable) {
         log.debug("Request to get all Customers");
-        return customersRepository.findAll(pageable).map(customersMapper::toDto);
+        return customersRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +93,9 @@ public class CustomersService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<CustomersDTO> findOne(Long id) {
+    public Optional<Customers> findOne(Long id) {
         log.debug("Request to get Customers : {}", id);
-        return customersRepository.findById(id).map(customersMapper::toDto);
+        return customersRepository.findById(id);
     }
 
     /**

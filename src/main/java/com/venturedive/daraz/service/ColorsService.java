@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.Colors;
 import com.venturedive.daraz.repository.ColorsRepository;
-import com.venturedive.daraz.service.dto.ColorsDTO;
-import com.venturedive.daraz.service.mapper.ColorsMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,54 @@ public class ColorsService {
 
     private final ColorsRepository colorsRepository;
 
-    private final ColorsMapper colorsMapper;
-
-    public ColorsService(ColorsRepository colorsRepository, ColorsMapper colorsMapper) {
+    public ColorsService(ColorsRepository colorsRepository) {
         this.colorsRepository = colorsRepository;
-        this.colorsMapper = colorsMapper;
     }
 
     /**
      * Save a colors.
      *
-     * @param colorsDTO the entity to save.
+     * @param colors the entity to save.
      * @return the persisted entity.
      */
-    public ColorsDTO save(ColorsDTO colorsDTO) {
-        log.debug("Request to save Colors : {}", colorsDTO);
-        Colors colors = colorsMapper.toEntity(colorsDTO);
-        colors = colorsRepository.save(colors);
-        return colorsMapper.toDto(colors);
+    public Colors save(Colors colors) {
+        log.debug("Request to save Colors : {}", colors);
+        return colorsRepository.save(colors);
     }
 
     /**
      * Update a colors.
      *
-     * @param colorsDTO the entity to save.
+     * @param colors the entity to save.
      * @return the persisted entity.
      */
-    public ColorsDTO update(ColorsDTO colorsDTO) {
-        log.debug("Request to update Colors : {}", colorsDTO);
-        Colors colors = colorsMapper.toEntity(colorsDTO);
-        colors = colorsRepository.save(colors);
-        return colorsMapper.toDto(colors);
+    public Colors update(Colors colors) {
+        log.debug("Request to update Colors : {}", colors);
+        return colorsRepository.save(colors);
     }
 
     /**
      * Partially update a colors.
      *
-     * @param colorsDTO the entity to update partially.
+     * @param colors the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<ColorsDTO> partialUpdate(ColorsDTO colorsDTO) {
-        log.debug("Request to partially update Colors : {}", colorsDTO);
+    public Optional<Colors> partialUpdate(Colors colors) {
+        log.debug("Request to partially update Colors : {}", colors);
 
         return colorsRepository
-            .findById(colorsDTO.getId())
+            .findById(colors.getId())
             .map(existingColors -> {
-                colorsMapper.partialUpdate(existingColors, colorsDTO);
+                if (colors.getColoruid() != null) {
+                    existingColors.setColoruid(colors.getColoruid());
+                }
+                if (colors.getName() != null) {
+                    existingColors.setName(colors.getName());
+                }
 
                 return existingColors;
             })
-            .map(colorsRepository::save)
-            .map(colorsMapper::toDto);
+            .map(colorsRepository::save);
     }
 
     /**
@@ -83,9 +78,9 @@ public class ColorsService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<ColorsDTO> findAll(Pageable pageable) {
+    public Page<Colors> findAll(Pageable pageable) {
         log.debug("Request to get all Colors");
-        return colorsRepository.findAll(pageable).map(colorsMapper::toDto);
+        return colorsRepository.findAll(pageable);
     }
 
     /**
@@ -93,8 +88,8 @@ public class ColorsService {
      *
      * @return the list of entities.
      */
-    public Page<ColorsDTO> findAllWithEagerRelationships(Pageable pageable) {
-        return colorsRepository.findAllWithEagerRelationships(pageable).map(colorsMapper::toDto);
+    public Page<Colors> findAllWithEagerRelationships(Pageable pageable) {
+        return colorsRepository.findAllWithEagerRelationships(pageable);
     }
 
     /**
@@ -104,9 +99,9 @@ public class ColorsService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<ColorsDTO> findOne(Long id) {
+    public Optional<Colors> findOne(Long id) {
         log.debug("Request to get Colors : {}", id);
-        return colorsRepository.findOneWithEagerRelationships(id).map(colorsMapper::toDto);
+        return colorsRepository.findOneWithEagerRelationships(id);
     }
 
     /**

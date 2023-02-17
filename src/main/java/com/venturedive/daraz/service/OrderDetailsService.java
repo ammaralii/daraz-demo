@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.OrderDetails;
 import com.venturedive.daraz.repository.OrderDetailsRepository;
-import com.venturedive.daraz.service.dto.OrderDetailsDTO;
-import com.venturedive.daraz.service.mapper.OrderDetailsMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,54 @@ public class OrderDetailsService {
 
     private final OrderDetailsRepository orderDetailsRepository;
 
-    private final OrderDetailsMapper orderDetailsMapper;
-
-    public OrderDetailsService(OrderDetailsRepository orderDetailsRepository, OrderDetailsMapper orderDetailsMapper) {
+    public OrderDetailsService(OrderDetailsRepository orderDetailsRepository) {
         this.orderDetailsRepository = orderDetailsRepository;
-        this.orderDetailsMapper = orderDetailsMapper;
     }
 
     /**
      * Save a orderDetails.
      *
-     * @param orderDetailsDTO the entity to save.
+     * @param orderDetails the entity to save.
      * @return the persisted entity.
      */
-    public OrderDetailsDTO save(OrderDetailsDTO orderDetailsDTO) {
-        log.debug("Request to save OrderDetails : {}", orderDetailsDTO);
-        OrderDetails orderDetails = orderDetailsMapper.toEntity(orderDetailsDTO);
-        orderDetails = orderDetailsRepository.save(orderDetails);
-        return orderDetailsMapper.toDto(orderDetails);
+    public OrderDetails save(OrderDetails orderDetails) {
+        log.debug("Request to save OrderDetails : {}", orderDetails);
+        return orderDetailsRepository.save(orderDetails);
     }
 
     /**
      * Update a orderDetails.
      *
-     * @param orderDetailsDTO the entity to save.
+     * @param orderDetails the entity to save.
      * @return the persisted entity.
      */
-    public OrderDetailsDTO update(OrderDetailsDTO orderDetailsDTO) {
-        log.debug("Request to update OrderDetails : {}", orderDetailsDTO);
-        OrderDetails orderDetails = orderDetailsMapper.toEntity(orderDetailsDTO);
-        orderDetails = orderDetailsRepository.save(orderDetails);
-        return orderDetailsMapper.toDto(orderDetails);
+    public OrderDetails update(OrderDetails orderDetails) {
+        log.debug("Request to update OrderDetails : {}", orderDetails);
+        return orderDetailsRepository.save(orderDetails);
     }
 
     /**
      * Partially update a orderDetails.
      *
-     * @param orderDetailsDTO the entity to update partially.
+     * @param orderDetails the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<OrderDetailsDTO> partialUpdate(OrderDetailsDTO orderDetailsDTO) {
-        log.debug("Request to partially update OrderDetails : {}", orderDetailsDTO);
+    public Optional<OrderDetails> partialUpdate(OrderDetails orderDetails) {
+        log.debug("Request to partially update OrderDetails : {}", orderDetails);
 
         return orderDetailsRepository
-            .findById(orderDetailsDTO.getId())
+            .findById(orderDetails.getId())
             .map(existingOrderDetails -> {
-                orderDetailsMapper.partialUpdate(existingOrderDetails, orderDetailsDTO);
+                if (orderDetails.getQuantity() != null) {
+                    existingOrderDetails.setQuantity(orderDetails.getQuantity());
+                }
+                if (orderDetails.getAmount() != null) {
+                    existingOrderDetails.setAmount(orderDetails.getAmount());
+                }
 
                 return existingOrderDetails;
             })
-            .map(orderDetailsRepository::save)
-            .map(orderDetailsMapper::toDto);
+            .map(orderDetailsRepository::save);
     }
 
     /**
@@ -83,9 +78,9 @@ public class OrderDetailsService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<OrderDetailsDTO> findAll(Pageable pageable) {
+    public Page<OrderDetails> findAll(Pageable pageable) {
         log.debug("Request to get all OrderDetails");
-        return orderDetailsRepository.findAll(pageable).map(orderDetailsMapper::toDto);
+        return orderDetailsRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +90,9 @@ public class OrderDetailsService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<OrderDetailsDTO> findOne(Long id) {
+    public Optional<OrderDetails> findOne(Long id) {
         log.debug("Request to get OrderDetails : {}", id);
-        return orderDetailsRepository.findById(id).map(orderDetailsMapper::toDto);
+        return orderDetailsRepository.findById(id);
     }
 
     /**

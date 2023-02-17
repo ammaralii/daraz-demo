@@ -10,8 +10,6 @@ import com.venturedive.daraz.domain.Cars;
 import com.venturedive.daraz.domain.Colors;
 import com.venturedive.daraz.repository.CarsRepository;
 import com.venturedive.daraz.service.criteria.CarsCriteria;
-import com.venturedive.daraz.service.dto.CarsDTO;
-import com.venturedive.daraz.service.mapper.CarsMapper;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -48,9 +46,6 @@ class CarsResourceIT {
 
     @Autowired
     private CarsRepository carsRepository;
-
-    @Autowired
-    private CarsMapper carsMapper;
 
     @Autowired
     private EntityManager em;
@@ -92,9 +87,8 @@ class CarsResourceIT {
     void createCars() throws Exception {
         int databaseSizeBeforeCreate = carsRepository.findAll().size();
         // Create the Cars
-        CarsDTO carsDTO = carsMapper.toDto(cars);
         restCarsMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(carsDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(cars)))
             .andExpect(status().isCreated());
 
         // Validate the Cars in the database
@@ -110,13 +104,12 @@ class CarsResourceIT {
     void createCarsWithExistingId() throws Exception {
         // Create the Cars with an existing ID
         cars.setId(1L);
-        CarsDTO carsDTO = carsMapper.toDto(cars);
 
         int databaseSizeBeforeCreate = carsRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCarsMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(carsDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(cars)))
             .andExpect(status().isBadRequest());
 
         // Validate the Cars in the database
@@ -132,10 +125,9 @@ class CarsResourceIT {
         cars.setCaruid(null);
 
         // Create the Cars, which fails.
-        CarsDTO carsDTO = carsMapper.toDto(cars);
 
         restCarsMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(carsDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(cars)))
             .andExpect(status().isBadRequest());
 
         List<Cars> carsList = carsRepository.findAll();
@@ -150,10 +142,9 @@ class CarsResourceIT {
         cars.setName(null);
 
         // Create the Cars, which fails.
-        CarsDTO carsDTO = carsMapper.toDto(cars);
 
         restCarsMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(carsDTO)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(cars)))
             .andExpect(status().isBadRequest());
 
         List<Cars> carsList = carsRepository.findAll();
@@ -448,13 +439,12 @@ class CarsResourceIT {
         // Disconnect from session so that the updates on updatedCars are not directly saved in db
         em.detach(updatedCars);
         updatedCars.caruid(UPDATED_CARUID).name(UPDATED_NAME);
-        CarsDTO carsDTO = carsMapper.toDto(updatedCars);
 
         restCarsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, carsDTO.getId())
+                put(ENTITY_API_URL_ID, updatedCars.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(carsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(updatedCars))
             )
             .andExpect(status().isOk());
 
@@ -472,15 +462,12 @@ class CarsResourceIT {
         int databaseSizeBeforeUpdate = carsRepository.findAll().size();
         cars.setId(count.incrementAndGet());
 
-        // Create the Cars
-        CarsDTO carsDTO = carsMapper.toDto(cars);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restCarsMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, carsDTO.getId())
+                put(ENTITY_API_URL_ID, cars.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(carsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(cars))
             )
             .andExpect(status().isBadRequest());
 
@@ -495,15 +482,12 @@ class CarsResourceIT {
         int databaseSizeBeforeUpdate = carsRepository.findAll().size();
         cars.setId(count.incrementAndGet());
 
-        // Create the Cars
-        CarsDTO carsDTO = carsMapper.toDto(cars);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restCarsMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(carsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(cars))
             )
             .andExpect(status().isBadRequest());
 
@@ -518,12 +502,9 @@ class CarsResourceIT {
         int databaseSizeBeforeUpdate = carsRepository.findAll().size();
         cars.setId(count.incrementAndGet());
 
-        // Create the Cars
-        CarsDTO carsDTO = carsMapper.toDto(cars);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restCarsMockMvc
-            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(carsDTO)))
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(cars)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the Cars in the database
@@ -597,15 +578,12 @@ class CarsResourceIT {
         int databaseSizeBeforeUpdate = carsRepository.findAll().size();
         cars.setId(count.incrementAndGet());
 
-        // Create the Cars
-        CarsDTO carsDTO = carsMapper.toDto(cars);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restCarsMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, carsDTO.getId())
+                patch(ENTITY_API_URL_ID, cars.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(carsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(cars))
             )
             .andExpect(status().isBadRequest());
 
@@ -620,15 +598,12 @@ class CarsResourceIT {
         int databaseSizeBeforeUpdate = carsRepository.findAll().size();
         cars.setId(count.incrementAndGet());
 
-        // Create the Cars
-        CarsDTO carsDTO = carsMapper.toDto(cars);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restCarsMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(carsDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(cars))
             )
             .andExpect(status().isBadRequest());
 
@@ -643,12 +618,9 @@ class CarsResourceIT {
         int databaseSizeBeforeUpdate = carsRepository.findAll().size();
         cars.setId(count.incrementAndGet());
 
-        // Create the Cars
-        CarsDTO carsDTO = carsMapper.toDto(cars);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restCarsMockMvc
-            .perform(patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(carsDTO)))
+            .perform(patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(cars)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the Cars in the database

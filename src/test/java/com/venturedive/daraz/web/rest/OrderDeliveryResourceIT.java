@@ -13,8 +13,6 @@ import com.venturedive.daraz.domain.ShippingDetails;
 import com.venturedive.daraz.domain.enumeration.ShippingStatus;
 import com.venturedive.daraz.repository.OrderDeliveryRepository;
 import com.venturedive.daraz.service.criteria.OrderDeliveryCriteria;
-import com.venturedive.daraz.service.dto.OrderDeliveryDTO;
-import com.venturedive.daraz.service.mapper.OrderDeliveryMapper;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -57,9 +55,6 @@ class OrderDeliveryResourceIT {
 
     @Autowired
     private OrderDeliveryRepository orderDeliveryRepository;
-
-    @Autowired
-    private OrderDeliveryMapper orderDeliveryMapper;
 
     @Autowired
     private EntityManager em;
@@ -171,11 +166,8 @@ class OrderDeliveryResourceIT {
     void createOrderDelivery() throws Exception {
         int databaseSizeBeforeCreate = orderDeliveryRepository.findAll().size();
         // Create the OrderDelivery
-        OrderDeliveryDTO orderDeliveryDTO = orderDeliveryMapper.toDto(orderDelivery);
         restOrderDeliveryMockMvc
-            .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDeliveryDTO))
-            )
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDelivery)))
             .andExpect(status().isCreated());
 
         // Validate the OrderDelivery in the database
@@ -192,15 +184,12 @@ class OrderDeliveryResourceIT {
     void createOrderDeliveryWithExistingId() throws Exception {
         // Create the OrderDelivery with an existing ID
         orderDelivery.setId(1L);
-        OrderDeliveryDTO orderDeliveryDTO = orderDeliveryMapper.toDto(orderDelivery);
 
         int databaseSizeBeforeCreate = orderDeliveryRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restOrderDeliveryMockMvc
-            .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDeliveryDTO))
-            )
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDelivery)))
             .andExpect(status().isBadRequest());
 
         // Validate the OrderDelivery in the database
@@ -216,12 +205,9 @@ class OrderDeliveryResourceIT {
         orderDelivery.setShippingStatus(null);
 
         // Create the OrderDelivery, which fails.
-        OrderDeliveryDTO orderDeliveryDTO = orderDeliveryMapper.toDto(orderDelivery);
 
         restOrderDeliveryMockMvc
-            .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDeliveryDTO))
-            )
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDelivery)))
             .andExpect(status().isBadRequest());
 
         List<OrderDelivery> orderDeliveryList = orderDeliveryRepository.findAll();
@@ -656,13 +642,12 @@ class OrderDeliveryResourceIT {
             .deliveryDate(UPDATED_DELIVERY_DATE)
             .deliveryCharge(UPDATED_DELIVERY_CHARGE)
             .shippingStatus(UPDATED_SHIPPING_STATUS);
-        OrderDeliveryDTO orderDeliveryDTO = orderDeliveryMapper.toDto(updatedOrderDelivery);
 
         restOrderDeliveryMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, orderDeliveryDTO.getId())
+                put(ENTITY_API_URL_ID, updatedOrderDelivery.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(orderDeliveryDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(updatedOrderDelivery))
             )
             .andExpect(status().isOk());
 
@@ -681,15 +666,12 @@ class OrderDeliveryResourceIT {
         int databaseSizeBeforeUpdate = orderDeliveryRepository.findAll().size();
         orderDelivery.setId(count.incrementAndGet());
 
-        // Create the OrderDelivery
-        OrderDeliveryDTO orderDeliveryDTO = orderDeliveryMapper.toDto(orderDelivery);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restOrderDeliveryMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, orderDeliveryDTO.getId())
+                put(ENTITY_API_URL_ID, orderDelivery.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(orderDeliveryDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(orderDelivery))
             )
             .andExpect(status().isBadRequest());
 
@@ -704,15 +686,12 @@ class OrderDeliveryResourceIT {
         int databaseSizeBeforeUpdate = orderDeliveryRepository.findAll().size();
         orderDelivery.setId(count.incrementAndGet());
 
-        // Create the OrderDelivery
-        OrderDeliveryDTO orderDeliveryDTO = orderDeliveryMapper.toDto(orderDelivery);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restOrderDeliveryMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(orderDeliveryDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(orderDelivery))
             )
             .andExpect(status().isBadRequest());
 
@@ -727,14 +706,9 @@ class OrderDeliveryResourceIT {
         int databaseSizeBeforeUpdate = orderDeliveryRepository.findAll().size();
         orderDelivery.setId(count.incrementAndGet());
 
-        // Create the OrderDelivery
-        OrderDeliveryDTO orderDeliveryDTO = orderDeliveryMapper.toDto(orderDelivery);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restOrderDeliveryMockMvc
-            .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDeliveryDTO))
-            )
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(orderDelivery)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the OrderDelivery in the database
@@ -813,15 +787,12 @@ class OrderDeliveryResourceIT {
         int databaseSizeBeforeUpdate = orderDeliveryRepository.findAll().size();
         orderDelivery.setId(count.incrementAndGet());
 
-        // Create the OrderDelivery
-        OrderDeliveryDTO orderDeliveryDTO = orderDeliveryMapper.toDto(orderDelivery);
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restOrderDeliveryMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, orderDeliveryDTO.getId())
+                patch(ENTITY_API_URL_ID, orderDelivery.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(orderDeliveryDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(orderDelivery))
             )
             .andExpect(status().isBadRequest());
 
@@ -836,15 +807,12 @@ class OrderDeliveryResourceIT {
         int databaseSizeBeforeUpdate = orderDeliveryRepository.findAll().size();
         orderDelivery.setId(count.incrementAndGet());
 
-        // Create the OrderDelivery
-        OrderDeliveryDTO orderDeliveryDTO = orderDeliveryMapper.toDto(orderDelivery);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restOrderDeliveryMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(orderDeliveryDTO))
+                    .content(TestUtil.convertObjectToJsonBytes(orderDelivery))
             )
             .andExpect(status().isBadRequest());
 
@@ -859,15 +827,10 @@ class OrderDeliveryResourceIT {
         int databaseSizeBeforeUpdate = orderDeliveryRepository.findAll().size();
         orderDelivery.setId(count.incrementAndGet());
 
-        // Create the OrderDelivery
-        OrderDeliveryDTO orderDeliveryDTO = orderDeliveryMapper.toDto(orderDelivery);
-
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restOrderDeliveryMockMvc
             .perform(
-                patch(ENTITY_API_URL)
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(orderDeliveryDTO))
+                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(orderDelivery))
             )
             .andExpect(status().isMethodNotAllowed());
 

@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.Products;
 import com.venturedive.daraz.repository.ProductsRepository;
-import com.venturedive.daraz.service.dto.ProductsDTO;
-import com.venturedive.daraz.service.mapper.ProductsMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,51 @@ public class ProductsService {
 
     private final ProductsRepository productsRepository;
 
-    private final ProductsMapper productsMapper;
-
-    public ProductsService(ProductsRepository productsRepository, ProductsMapper productsMapper) {
+    public ProductsService(ProductsRepository productsRepository) {
         this.productsRepository = productsRepository;
-        this.productsMapper = productsMapper;
     }
 
     /**
      * Save a products.
      *
-     * @param productsDTO the entity to save.
+     * @param products the entity to save.
      * @return the persisted entity.
      */
-    public ProductsDTO save(ProductsDTO productsDTO) {
-        log.debug("Request to save Products : {}", productsDTO);
-        Products products = productsMapper.toEntity(productsDTO);
-        products = productsRepository.save(products);
-        return productsMapper.toDto(products);
+    public Products save(Products products) {
+        log.debug("Request to save Products : {}", products);
+        return productsRepository.save(products);
     }
 
     /**
      * Update a products.
      *
-     * @param productsDTO the entity to save.
+     * @param products the entity to save.
      * @return the persisted entity.
      */
-    public ProductsDTO update(ProductsDTO productsDTO) {
-        log.debug("Request to update Products : {}", productsDTO);
-        Products products = productsMapper.toEntity(productsDTO);
-        products = productsRepository.save(products);
-        return productsMapper.toDto(products);
+    public Products update(Products products) {
+        log.debug("Request to update Products : {}", products);
+        return productsRepository.save(products);
     }
 
     /**
      * Partially update a products.
      *
-     * @param productsDTO the entity to update partially.
+     * @param products the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<ProductsDTO> partialUpdate(ProductsDTO productsDTO) {
-        log.debug("Request to partially update Products : {}", productsDTO);
+    public Optional<Products> partialUpdate(Products products) {
+        log.debug("Request to partially update Products : {}", products);
 
         return productsRepository
-            .findById(productsDTO.getId())
+            .findById(products.getId())
             .map(existingProducts -> {
-                productsMapper.partialUpdate(existingProducts, productsDTO);
+                if (products.getName() != null) {
+                    existingProducts.setName(products.getName());
+                }
 
                 return existingProducts;
             })
-            .map(productsRepository::save)
-            .map(productsMapper::toDto);
+            .map(productsRepository::save);
     }
 
     /**
@@ -83,9 +75,9 @@ public class ProductsService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<ProductsDTO> findAll(Pageable pageable) {
+    public Page<Products> findAll(Pageable pageable) {
         log.debug("Request to get all Products");
-        return productsRepository.findAll(pageable).map(productsMapper::toDto);
+        return productsRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +87,9 @@ public class ProductsService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<ProductsDTO> findOne(Long id) {
+    public Optional<Products> findOne(Long id) {
         log.debug("Request to get Products : {}", id);
-        return productsRepository.findById(id).map(productsMapper::toDto);
+        return productsRepository.findById(id);
     }
 
     /**

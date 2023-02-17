@@ -1,7 +1,7 @@
 {
   "applications": "*",
   "changelogDate": "20230217124129",
-  "dto": "mapstruct",
+  "dto": "no",
   "embedded": false,
   "entityTableName": "cars",
   "fields": [

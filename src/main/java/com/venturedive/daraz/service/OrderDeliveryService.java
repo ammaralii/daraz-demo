@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.OrderDelivery;
 import com.venturedive.daraz.repository.OrderDeliveryRepository;
-import com.venturedive.daraz.service.dto.OrderDeliveryDTO;
-import com.venturedive.daraz.service.mapper.OrderDeliveryMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,57 @@ public class OrderDeliveryService {
 
     private final OrderDeliveryRepository orderDeliveryRepository;
 
-    private final OrderDeliveryMapper orderDeliveryMapper;
-
-    public OrderDeliveryService(OrderDeliveryRepository orderDeliveryRepository, OrderDeliveryMapper orderDeliveryMapper) {
+    public OrderDeliveryService(OrderDeliveryRepository orderDeliveryRepository) {
         this.orderDeliveryRepository = orderDeliveryRepository;
-        this.orderDeliveryMapper = orderDeliveryMapper;
     }
 
     /**
      * Save a orderDelivery.
      *
-     * @param orderDeliveryDTO the entity to save.
+     * @param orderDelivery the entity to save.
      * @return the persisted entity.
      */
-    public OrderDeliveryDTO save(OrderDeliveryDTO orderDeliveryDTO) {
-        log.debug("Request to save OrderDelivery : {}", orderDeliveryDTO);
-        OrderDelivery orderDelivery = orderDeliveryMapper.toEntity(orderDeliveryDTO);
-        orderDelivery = orderDeliveryRepository.save(orderDelivery);
-        return orderDeliveryMapper.toDto(orderDelivery);
+    public OrderDelivery save(OrderDelivery orderDelivery) {
+        log.debug("Request to save OrderDelivery : {}", orderDelivery);
+        return orderDeliveryRepository.save(orderDelivery);
     }
 
     /**
      * Update a orderDelivery.
      *
-     * @param orderDeliveryDTO the entity to save.
+     * @param orderDelivery the entity to save.
      * @return the persisted entity.
      */
-    public OrderDeliveryDTO update(OrderDeliveryDTO orderDeliveryDTO) {
-        log.debug("Request to update OrderDelivery : {}", orderDeliveryDTO);
-        OrderDelivery orderDelivery = orderDeliveryMapper.toEntity(orderDeliveryDTO);
-        orderDelivery = orderDeliveryRepository.save(orderDelivery);
-        return orderDeliveryMapper.toDto(orderDelivery);
+    public OrderDelivery update(OrderDelivery orderDelivery) {
+        log.debug("Request to update OrderDelivery : {}", orderDelivery);
+        return orderDeliveryRepository.save(orderDelivery);
     }
 
     /**
      * Partially update a orderDelivery.
      *
-     * @param orderDeliveryDTO the entity to update partially.
+     * @param orderDelivery the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<OrderDeliveryDTO> partialUpdate(OrderDeliveryDTO orderDeliveryDTO) {
-        log.debug("Request to partially update OrderDelivery : {}", orderDeliveryDTO);
+    public Optional<OrderDelivery> partialUpdate(OrderDelivery orderDelivery) {
+        log.debug("Request to partially update OrderDelivery : {}", orderDelivery);
 
         return orderDeliveryRepository
-            .findById(orderDeliveryDTO.getId())
+            .findById(orderDelivery.getId())
             .map(existingOrderDelivery -> {
-                orderDeliveryMapper.partialUpdate(existingOrderDelivery, orderDeliveryDTO);
+                if (orderDelivery.getDeliveryDate() != null) {
+                    existingOrderDelivery.setDeliveryDate(orderDelivery.getDeliveryDate());
+                }
+                if (orderDelivery.getDeliveryCharge() != null) {
+                    existingOrderDelivery.setDeliveryCharge(orderDelivery.getDeliveryCharge());
+                }
+                if (orderDelivery.getShippingStatus() != null) {
+                    existingOrderDelivery.setShippingStatus(orderDelivery.getShippingStatus());
+                }
 
                 return existingOrderDelivery;
             })
-            .map(orderDeliveryRepository::save)
-            .map(orderDeliveryMapper::toDto);
+            .map(orderDeliveryRepository::save);
     }
 
     /**
@@ -83,9 +81,9 @@ public class OrderDeliveryService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<OrderDeliveryDTO> findAll(Pageable pageable) {
+    public Page<OrderDelivery> findAll(Pageable pageable) {
         log.debug("Request to get all OrderDeliveries");
-        return orderDeliveryRepository.findAll(pageable).map(orderDeliveryMapper::toDto);
+        return orderDeliveryRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +93,9 @@ public class OrderDeliveryService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<OrderDeliveryDTO> findOne(Long id) {
+    public Optional<OrderDelivery> findOne(Long id) {
         log.debug("Request to get OrderDelivery : {}", id);
-        return orderDeliveryRepository.findById(id).map(orderDeliveryMapper::toDto);
+        return orderDeliveryRepository.findById(id);
     }
 
     /**

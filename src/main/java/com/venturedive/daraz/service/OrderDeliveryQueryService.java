@@ -4,8 +4,6 @@ import com.venturedive.daraz.domain.*; // for static metamodels
 import com.venturedive.daraz.domain.OrderDelivery;
 import com.venturedive.daraz.repository.OrderDeliveryRepository;
 import com.venturedive.daraz.service.criteria.OrderDeliveryCriteria;
-import com.venturedive.daraz.service.dto.OrderDeliveryDTO;
-import com.venturedive.daraz.service.mapper.OrderDeliveryMapper;
 import java.util.List;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
@@ -21,7 +19,7 @@ import tech.jhipster.service.QueryService;
  * Service for executing complex queries for {@link OrderDelivery} entities in the database.
  * The main input is a {@link OrderDeliveryCriteria} which gets converted to {@link Specification},
  * in a way that all the filters must apply.
- * It returns a {@link List} of {@link OrderDeliveryDTO} or a {@link Page} of {@link OrderDeliveryDTO} which fulfills the criteria.
+ * It returns a {@link List} of {@link OrderDelivery} or a {@link Page} of {@link OrderDelivery} which fulfills the criteria.
  */
 @Service
 @Transactional(readOnly = true)
@@ -31,36 +29,33 @@ public class OrderDeliveryQueryService extends QueryService<OrderDelivery> {
 
     private final OrderDeliveryRepository orderDeliveryRepository;
 
-    private final OrderDeliveryMapper orderDeliveryMapper;
-
-    public OrderDeliveryQueryService(OrderDeliveryRepository orderDeliveryRepository, OrderDeliveryMapper orderDeliveryMapper) {
+    public OrderDeliveryQueryService(OrderDeliveryRepository orderDeliveryRepository) {
         this.orderDeliveryRepository = orderDeliveryRepository;
-        this.orderDeliveryMapper = orderDeliveryMapper;
     }
 
     /**
-     * Return a {@link List} of {@link OrderDeliveryDTO} which matches the criteria from the database.
+     * Return a {@link List} of {@link OrderDelivery} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public List<OrderDeliveryDTO> findByCriteria(OrderDeliveryCriteria criteria) {
+    public List<OrderDelivery> findByCriteria(OrderDeliveryCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
         final Specification<OrderDelivery> specification = createSpecification(criteria);
-        return orderDeliveryMapper.toDto(orderDeliveryRepository.findAll(specification));
+        return orderDeliveryRepository.findAll(specification);
     }
 
     /**
-     * Return a {@link Page} of {@link OrderDeliveryDTO} which matches the criteria from the database.
+     * Return a {@link Page} of {@link OrderDelivery} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @param page The page, which should be returned.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public Page<OrderDeliveryDTO> findByCriteria(OrderDeliveryCriteria criteria, Pageable page) {
+    public Page<OrderDelivery> findByCriteria(OrderDeliveryCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<OrderDelivery> specification = createSpecification(criteria);
-        return orderDeliveryRepository.findAll(specification, page).map(orderDeliveryMapper::toDto);
+        return orderDeliveryRepository.findAll(specification, page);
     }
 
     /**

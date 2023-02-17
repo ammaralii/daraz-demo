@@ -1,10 +1,10 @@
 package com.venturedive.daraz.web.rest;
 
+import com.venturedive.daraz.domain.ShippingDetails;
 import com.venturedive.daraz.repository.ShippingDetailsRepository;
 import com.venturedive.daraz.service.ShippingDetailsQueryService;
 import com.venturedive.daraz.service.ShippingDetailsService;
 import com.venturedive.daraz.service.criteria.ShippingDetailsCriteria;
-import com.venturedive.daraz.service.dto.ShippingDetailsDTO;
 import com.venturedive.daraz.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,18 +59,18 @@ public class ShippingDetailsResource {
     /**
      * {@code POST  /shipping-details} : Create a new shippingDetails.
      *
-     * @param shippingDetailsDTO the shippingDetailsDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new shippingDetailsDTO, or with status {@code 400 (Bad Request)} if the shippingDetails has already an ID.
+     * @param shippingDetails the shippingDetails to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new shippingDetails, or with status {@code 400 (Bad Request)} if the shippingDetails has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/shipping-details")
-    public ResponseEntity<ShippingDetailsDTO> createShippingDetails(@Valid @RequestBody ShippingDetailsDTO shippingDetailsDTO)
+    public ResponseEntity<ShippingDetails> createShippingDetails(@Valid @RequestBody ShippingDetails shippingDetails)
         throws URISyntaxException {
-        log.debug("REST request to save ShippingDetails : {}", shippingDetailsDTO);
-        if (shippingDetailsDTO.getId() != null) {
+        log.debug("REST request to save ShippingDetails : {}", shippingDetails);
+        if (shippingDetails.getId() != null) {
             throw new BadRequestAlertException("A new shippingDetails cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        ShippingDetailsDTO result = shippingDetailsService.save(shippingDetailsDTO);
+        ShippingDetails result = shippingDetailsService.save(shippingDetails);
         return ResponseEntity
             .created(new URI("/api/shipping-details/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -80,23 +80,23 @@ public class ShippingDetailsResource {
     /**
      * {@code PUT  /shipping-details/:id} : Updates an existing shippingDetails.
      *
-     * @param id the id of the shippingDetailsDTO to save.
-     * @param shippingDetailsDTO the shippingDetailsDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated shippingDetailsDTO,
-     * or with status {@code 400 (Bad Request)} if the shippingDetailsDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the shippingDetailsDTO couldn't be updated.
+     * @param id the id of the shippingDetails to save.
+     * @param shippingDetails the shippingDetails to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated shippingDetails,
+     * or with status {@code 400 (Bad Request)} if the shippingDetails is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the shippingDetails couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/shipping-details/{id}")
-    public ResponseEntity<ShippingDetailsDTO> updateShippingDetails(
+    public ResponseEntity<ShippingDetails> updateShippingDetails(
         @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody ShippingDetailsDTO shippingDetailsDTO
+        @Valid @RequestBody ShippingDetails shippingDetails
     ) throws URISyntaxException {
-        log.debug("REST request to update ShippingDetails : {}, {}", id, shippingDetailsDTO);
-        if (shippingDetailsDTO.getId() == null) {
+        log.debug("REST request to update ShippingDetails : {}, {}", id, shippingDetails);
+        if (shippingDetails.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, shippingDetailsDTO.getId())) {
+        if (!Objects.equals(id, shippingDetails.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -104,34 +104,34 @@ public class ShippingDetailsResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        ShippingDetailsDTO result = shippingDetailsService.update(shippingDetailsDTO);
+        ShippingDetails result = shippingDetailsService.update(shippingDetails);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, shippingDetailsDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, shippingDetails.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /shipping-details/:id} : Partial updates given fields of an existing shippingDetails, field will ignore if it is null
      *
-     * @param id the id of the shippingDetailsDTO to save.
-     * @param shippingDetailsDTO the shippingDetailsDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated shippingDetailsDTO,
-     * or with status {@code 400 (Bad Request)} if the shippingDetailsDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the shippingDetailsDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the shippingDetailsDTO couldn't be updated.
+     * @param id the id of the shippingDetails to save.
+     * @param shippingDetails the shippingDetails to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated shippingDetails,
+     * or with status {@code 400 (Bad Request)} if the shippingDetails is not valid,
+     * or with status {@code 404 (Not Found)} if the shippingDetails is not found,
+     * or with status {@code 500 (Internal Server Error)} if the shippingDetails couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/shipping-details/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<ShippingDetailsDTO> partialUpdateShippingDetails(
+    public ResponseEntity<ShippingDetails> partialUpdateShippingDetails(
         @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody ShippingDetailsDTO shippingDetailsDTO
+        @NotNull @RequestBody ShippingDetails shippingDetails
     ) throws URISyntaxException {
-        log.debug("REST request to partial update ShippingDetails partially : {}, {}", id, shippingDetailsDTO);
-        if (shippingDetailsDTO.getId() == null) {
+        log.debug("REST request to partial update ShippingDetails partially : {}, {}", id, shippingDetails);
+        if (shippingDetails.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, shippingDetailsDTO.getId())) {
+        if (!Objects.equals(id, shippingDetails.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -139,11 +139,11 @@ public class ShippingDetailsResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<ShippingDetailsDTO> result = shippingDetailsService.partialUpdate(shippingDetailsDTO);
+        Optional<ShippingDetails> result = shippingDetailsService.partialUpdate(shippingDetails);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, shippingDetailsDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, shippingDetails.getId().toString())
         );
     }
 
@@ -155,12 +155,12 @@ public class ShippingDetailsResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of shippingDetails in body.
      */
     @GetMapping("/shipping-details")
-    public ResponseEntity<List<ShippingDetailsDTO>> getAllShippingDetails(
+    public ResponseEntity<List<ShippingDetails>> getAllShippingDetails(
         ShippingDetailsCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get ShippingDetails by criteria: {}", criteria);
-        Page<ShippingDetailsDTO> page = shippingDetailsQueryService.findByCriteria(criteria, pageable);
+        Page<ShippingDetails> page = shippingDetailsQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -180,20 +180,20 @@ public class ShippingDetailsResource {
     /**
      * {@code GET  /shipping-details/:id} : get the "id" shippingDetails.
      *
-     * @param id the id of the shippingDetailsDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the shippingDetailsDTO, or with status {@code 404 (Not Found)}.
+     * @param id the id of the shippingDetails to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the shippingDetails, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/shipping-details/{id}")
-    public ResponseEntity<ShippingDetailsDTO> getShippingDetails(@PathVariable Long id) {
+    public ResponseEntity<ShippingDetails> getShippingDetails(@PathVariable Long id) {
         log.debug("REST request to get ShippingDetails : {}", id);
-        Optional<ShippingDetailsDTO> shippingDetailsDTO = shippingDetailsService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(shippingDetailsDTO);
+        Optional<ShippingDetails> shippingDetails = shippingDetailsService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(shippingDetails);
     }
 
     /**
      * {@code DELETE  /shipping-details/:id} : delete the "id" shippingDetails.
      *
-     * @param id the id of the shippingDetailsDTO to delete.
+     * @param id the id of the shippingDetails to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/shipping-details/{id}")

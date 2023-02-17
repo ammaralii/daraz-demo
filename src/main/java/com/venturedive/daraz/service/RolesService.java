@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.Roles;
 import com.venturedive.daraz.repository.RolesRepository;
-import com.venturedive.daraz.service.dto.RolesDTO;
-import com.venturedive.daraz.service.mapper.RolesMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,54 @@ public class RolesService {
 
     private final RolesRepository rolesRepository;
 
-    private final RolesMapper rolesMapper;
-
-    public RolesService(RolesRepository rolesRepository, RolesMapper rolesMapper) {
+    public RolesService(RolesRepository rolesRepository) {
         this.rolesRepository = rolesRepository;
-        this.rolesMapper = rolesMapper;
     }
 
     /**
      * Save a roles.
      *
-     * @param rolesDTO the entity to save.
+     * @param roles the entity to save.
      * @return the persisted entity.
      */
-    public RolesDTO save(RolesDTO rolesDTO) {
-        log.debug("Request to save Roles : {}", rolesDTO);
-        Roles roles = rolesMapper.toEntity(rolesDTO);
-        roles = rolesRepository.save(roles);
-        return rolesMapper.toDto(roles);
+    public Roles save(Roles roles) {
+        log.debug("Request to save Roles : {}", roles);
+        return rolesRepository.save(roles);
     }
 
     /**
      * Update a roles.
      *
-     * @param rolesDTO the entity to save.
+     * @param roles the entity to save.
      * @return the persisted entity.
      */
-    public RolesDTO update(RolesDTO rolesDTO) {
-        log.debug("Request to update Roles : {}", rolesDTO);
-        Roles roles = rolesMapper.toEntity(rolesDTO);
-        roles = rolesRepository.save(roles);
-        return rolesMapper.toDto(roles);
+    public Roles update(Roles roles) {
+        log.debug("Request to update Roles : {}", roles);
+        return rolesRepository.save(roles);
     }
 
     /**
      * Partially update a roles.
      *
-     * @param rolesDTO the entity to update partially.
+     * @param roles the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<RolesDTO> partialUpdate(RolesDTO rolesDTO) {
-        log.debug("Request to partially update Roles : {}", rolesDTO);
+    public Optional<Roles> partialUpdate(Roles roles) {
+        log.debug("Request to partially update Roles : {}", roles);
 
         return rolesRepository
-            .findById(rolesDTO.getId())
+            .findById(roles.getId())
             .map(existingRoles -> {
-                rolesMapper.partialUpdate(existingRoles, rolesDTO);
+                if (roles.getRolePrId() != null) {
+                    existingRoles.setRolePrId(roles.getRolePrId());
+                }
+                if (roles.getName() != null) {
+                    existingRoles.setName(roles.getName());
+                }
 
                 return existingRoles;
             })
-            .map(rolesRepository::save)
-            .map(rolesMapper::toDto);
+            .map(rolesRepository::save);
     }
 
     /**
@@ -83,9 +78,9 @@ public class RolesService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<RolesDTO> findAll(Pageable pageable) {
+    public Page<Roles> findAll(Pageable pageable) {
         log.debug("Request to get all Roles");
-        return rolesRepository.findAll(pageable).map(rolesMapper::toDto);
+        return rolesRepository.findAll(pageable);
     }
 
     /**
@@ -93,8 +88,8 @@ public class RolesService {
      *
      * @return the list of entities.
      */
-    public Page<RolesDTO> findAllWithEagerRelationships(Pageable pageable) {
-        return rolesRepository.findAllWithEagerRelationships(pageable).map(rolesMapper::toDto);
+    public Page<Roles> findAllWithEagerRelationships(Pageable pageable) {
+        return rolesRepository.findAllWithEagerRelationships(pageable);
     }
 
     /**
@@ -104,9 +99,9 @@ public class RolesService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<RolesDTO> findOne(Long id) {
+    public Optional<Roles> findOne(Long id) {
         log.debug("Request to get Roles : {}", id);
-        return rolesRepository.findOneWithEagerRelationships(id).map(rolesMapper::toDto);
+        return rolesRepository.findOneWithEagerRelationships(id);
     }
 
     /**

@@ -2,8 +2,6 @@ package com.venturedive.daraz.service;
 
 import com.venturedive.daraz.domain.Categories;
 import com.venturedive.daraz.repository.CategoriesRepository;
-import com.venturedive.daraz.service.dto.CategoriesDTO;
-import com.venturedive.daraz.service.mapper.CategoriesMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,57 +21,54 @@ public class CategoriesService {
 
     private final CategoriesRepository categoriesRepository;
 
-    private final CategoriesMapper categoriesMapper;
-
-    public CategoriesService(CategoriesRepository categoriesRepository, CategoriesMapper categoriesMapper) {
+    public CategoriesService(CategoriesRepository categoriesRepository) {
         this.categoriesRepository = categoriesRepository;
-        this.categoriesMapper = categoriesMapper;
     }
 
     /**
      * Save a categories.
      *
-     * @param categoriesDTO the entity to save.
+     * @param categories the entity to save.
      * @return the persisted entity.
      */
-    public CategoriesDTO save(CategoriesDTO categoriesDTO) {
-        log.debug("Request to save Categories : {}", categoriesDTO);
-        Categories categories = categoriesMapper.toEntity(categoriesDTO);
-        categories = categoriesRepository.save(categories);
-        return categoriesMapper.toDto(categories);
+    public Categories save(Categories categories) {
+        log.debug("Request to save Categories : {}", categories);
+        return categoriesRepository.save(categories);
     }
 
     /**
      * Update a categories.
      *
-     * @param categoriesDTO the entity to save.
+     * @param categories the entity to save.
      * @return the persisted entity.
      */
-    public CategoriesDTO update(CategoriesDTO categoriesDTO) {
-        log.debug("Request to update Categories : {}", categoriesDTO);
-        Categories categories = categoriesMapper.toEntity(categoriesDTO);
-        categories = categoriesRepository.save(categories);
-        return categoriesMapper.toDto(categories);
+    public Categories update(Categories categories) {
+        log.debug("Request to update Categories : {}", categories);
+        return categoriesRepository.save(categories);
     }
 
     /**
      * Partially update a categories.
      *
-     * @param categoriesDTO the entity to update partially.
+     * @param categories the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<CategoriesDTO> partialUpdate(CategoriesDTO categoriesDTO) {
-        log.debug("Request to partially update Categories : {}", categoriesDTO);
+    public Optional<Categories> partialUpdate(Categories categories) {
+        log.debug("Request to partially update Categories : {}", categories);
 
         return categoriesRepository
-            .findById(categoriesDTO.getId())
+            .findById(categories.getId())
             .map(existingCategories -> {
-                categoriesMapper.partialUpdate(existingCategories, categoriesDTO);
+                if (categories.getName() != null) {
+                    existingCategories.setName(categories.getName());
+                }
+                if (categories.getDetail() != null) {
+                    existingCategories.setDetail(categories.getDetail());
+                }
 
                 return existingCategories;
             })
-            .map(categoriesRepository::save)
-            .map(categoriesMapper::toDto);
+            .map(categoriesRepository::save);
     }
 
     /**
@@ -83,9 +78,9 @@ public class CategoriesService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<CategoriesDTO> findAll(Pageable pageable) {
+    public Page<Categories> findAll(Pageable pageable) {
         log.debug("Request to get all Categories");
-        return categoriesRepository.findAll(pageable).map(categoriesMapper::toDto);
+        return categoriesRepository.findAll(pageable);
     }
 
     /**
@@ -95,9 +90,9 @@ public class CategoriesService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<CategoriesDTO> findOne(Long id) {
+    public Optional<Categories> findOne(Long id) {
         log.debug("Request to get Categories : {}", id);
-        return categoriesRepository.findById(id).map(categoriesMapper::toDto);
+        return categoriesRepository.findById(id);
     }
 
     /**
