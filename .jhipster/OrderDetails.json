@@ -1,0 +1,39 @@
+{
+  "applications": "*",
+  "changelogDate": "20230217124135",
+  "dto": "mapstruct",
+  "embedded": false,
+  "entityTableName": "order_details",
+  "fields": [
+    {
+      "fieldName": "quantity",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "Double"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": true,
+  "name": "OrderDetails",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "orders",
+      "otherEntityRelationshipName": "orderdetailsOrder",
+      "relationshipName": "order",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityName": "products",
+      "otherEntityRelationshipName": "orderdetailsProduct",
+      "relationshipName": "product",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "service": "serviceClass"
+}

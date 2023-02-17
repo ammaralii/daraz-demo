@@ -1,0 +1,35 @@
+{
+  "applications": "*",
+  "changelogDate": "20230217124130",
+  "dto": "mapstruct",
+  "embedded": false,
+  "entityTableName": "categories",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "detail",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": true,
+  "name": "Categories",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "products",
+      "otherEntityRelationshipName": "category",
+      "relationshipName": "productsCategory",
+      "relationshipType": "one-to-many"
+    }
+  ],
+  "service": "serviceClass"
+}
