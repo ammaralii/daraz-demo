@@ -1,9 +1,8 @@
-enum ShippingMethod {
-    COD, CASH, CARD
+enum OrderDeliveryShippingMethod {
+    PENDING, DELIVERED, CANCELLED
 }
-
-enum ShippingStatus {
-    Pending, Delivered, Cancelled
+enum ShippingDetailsShippingMethod {
+    COD, CASH, CARD
 }
 
 entity Addresses(addresses) {
@@ -33,16 +32,10 @@ entity Customers(customers) {
     phone String required maxlength(255)
 }
 
-entity DarazUsers(Daraz_Users) {
-    fullName String required maxlength(100),
-    email String required maxlength(255),
-    phone String required maxlength(255)
-}
-
 entity OrderDelivery(Order_Delivery) {
     deliveryDate LocalDate,
     deliveryCharge Double,
-    shippingStatus ShippingStatus required
+    shippingMethod OrderDeliveryShippingMethod required
 }
 
 entity OrderDetails(Order_Details) {
@@ -78,21 +71,23 @@ entity Roles(roles) {
 
 entity ShippingDetails(Shipping_Details) {
     shippingAddress String required maxlength(32),
-    shippingMethod ShippingMethod required,
+    shippingMethod ShippingDetailsShippingMethod required,
     estimatedDeliveryDate LocalDate required
+}
+
+entity Users(users) {
+    fullName String required maxlength(100),
+    email String required maxlength(255),
+    phone String required maxlength(255)
 }
 
 // Relations
 relationship ManyToOne {
-    Addresses{user required} to DarazUsers{addressesUser}
+    Addresses{user required} to Users{addressesUser}
 }
 
 relationship ManyToMany {
-    Colors{car} to Cars{color}
-}
-
-relationship ManyToOne {
-    DarazUsers{manager} to DarazUsers{darazusersManager}
+    Cars{color} to Colors{car}
 }
 
 relationship ManyToOne {
@@ -104,11 +99,11 @@ relationship ManyToOne {
 }
 
 relationship ManyToOne {
-    OrderDelivery{deliveryManager required} to DarazUsers{orderdeliveryDeliverymanager}
+    OrderDelivery{deliveryManager required} to Users{orderdeliveryDeliverymanager}
 }
 
 relationship ManyToOne {
-    OrderDelivery{deliveryBoy required} to DarazUsers{orderdeliveryDeliveryboy}
+    OrderDelivery{deliveryBoy required} to Users{orderdeliveryDeliveryboy}
 }
 
 relationship ManyToOne {
@@ -139,15 +134,17 @@ relationship ManyToOne {
     ShippingDetails{order required} to Orders{shippingdetailsOrder}
 }
 
+relationship ManyToOne {
+    Users{manager} to Users{usersManager}
+}
+
 relationship ManyToMany {
-    Roles{user} to DarazUsers{role}
+    Roles{user} to Users{role}
 }
 
 // Options
 service * with serviceClass
 
 paginate * with pagination
-
-//dto * with mapstruct
 
 filter *
